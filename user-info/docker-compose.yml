@@ -1,0 +1,25 @@
+services:
+  web:
+    container_name: user-backend
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://user:password@db/mydatabase
+  db:
+    container_name: psqldb
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: psqldb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
+
+volumes:
+  db-data:
