@@ -22,6 +22,10 @@ class User(db.Model):
 
 # Remove the db.create_all() call from here
 
+@app.route('/')
+def index():
+    return 'Hello, World!'
+
 @app.route('/register', methods=['POST'])
 def register():
     username = request.json['username']
@@ -57,4 +61,4 @@ with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0")
