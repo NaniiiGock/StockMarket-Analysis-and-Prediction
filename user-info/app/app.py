@@ -20,7 +20,7 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
-db.create_all()
+# Remove the db.create_all() call from here
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -51,6 +51,10 @@ def login():
         return jsonify({"message": "Login successful"}), 200
     else:
         return jsonify({"error": "Invalid username or password"}), 401
+
+# Add this block to create all database tables within the application context
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)

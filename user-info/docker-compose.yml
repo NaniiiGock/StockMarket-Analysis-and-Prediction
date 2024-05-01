@@ -1,13 +1,17 @@
 services:
   web:
     container_name: user-backend
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://user:password@db/mydatabase
+      - DATABASE_URL=postgresql://user:password@db/psqldb
+    volumes:
+      - ./app:/app
   db:
     container_name: psqldb
     image: postgres:alpine
