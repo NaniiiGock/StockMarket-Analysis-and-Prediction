@@ -11,9 +11,6 @@ use tokio::time::sleep;
 
 use crate::models::PriceStamp;
 
-pub static TOKEN_LIST: [&str; 6] = ["HNT", "SOL", "soLINK", "tBTC", "Bonk", "W"];
-pub static VS_TOKEN: &str = "USDT";
-
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("failed to prepare query: {}", source)]
