@@ -1,19 +1,23 @@
 use std::net::SocketAddr;
-use std::time::Duration;
-use axum::Router;
+use std::sync::Arc;
+use anyhow::anyhow;
+use axum::{Router};
 use axum::routing::get;
 
 use clap::Parser;
-use moka::future::Cache;
+use thiserror::Error;
 use tokio::net::TcpListener;
 use tokio::signal;
 
 use crate::args::{Args, ServerState};
+use crate::db::create_session;
+use crate::utils::streaming::populate_prices;
 
 pub mod args;
 pub mod db;
 pub mod models;
 pub mod routes;
+mod utils;
 
 /// This function is used for graceful shutdown.
 /// Probably should be replaced with something more robust.
@@ -42,47 +46,54 @@ pub async fn graceful_shutdown() {
     }
 }
 
-/// A helper function to build cache for the server.
-pub fn build_token_price_cache(
-    max_capacity: u64,
-    timeout: Duration,
-) -> Cache<(String, String), f64> {
-    Cache::builder()
-        .max_capacity(max_capacity)
-        .time_to_live(timeout)
-        .build()
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error(transparent)]
+    Error {
+        #[from]
+        source: anyhow::Error,
+    }
 }
 
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     let Args {
-        https_port,
-        cache_timeout,
-        cache_capacity,
+        https_port, 
+        cassandra_node,
+        kafka_node
     } = Args::parse();
-
-    let cache = build_token_price_cache(cache_capacity, cache_timeout);
     
     let addr = SocketAddr::from(([0, 0, 0, 0], https_port));
+    let session = Arc::new(create_session(&cassandra_node)
+        .await
+        .map_err(|e| anyhow!(e.to_string()))?
+    );
+    
+    let state = ServerState { session, kafka_node };
 
     println!("Starting server at {}", addr);
-    
     
     let listener = TcpListener::bind(addr)
         .await
         .unwrap();
-
-    let server_state = ServerState { cache };
+    
+    // TODO
+    // Spawning a separate task for populating historical DB
+    tokio::spawn(populate_prices(state.session.clone(), state.kafka_node.clone()));
 
     let app = Router::new()
         .route("/", get(|| async {"Placeholder for main page"}))
         .route("/price", get(routes::price::price_of_token))
-        .with_state(server_state);
-
+        .route("/tokens", get(routes::tokens::get_token_list))
+        .route("/price/interval", get(routes::price::price_of_token_interval))
+        .with_state(state);
     
     axum::serve(listener, app.into_make_service())
         .with_graceful_shutdown(graceful_shutdown())
         .await
-        .unwrap();
+        .map_err(|e| anyhow!(e.to_string()))?;
+    
+    Ok(())
 }
