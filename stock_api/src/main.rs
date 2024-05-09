@@ -79,8 +79,6 @@ async fn main() -> Result<()> {
         .await
         .unwrap();
     
-    // TODO
-    // Spawning a separate task for populating historical DB
     tokio::spawn(populate_prices(state.session.clone(), state.kafka_node.clone()));
 
     let app = Router::new()
