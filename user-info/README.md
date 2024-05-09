@@ -21,7 +21,13 @@ curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser", "pa
 
 
 Add transaction into history:
-curl -X POST -H "Content-Type: application/json" -d '{"user_id_sold": 1, "user_id_bought": 2}' http://127.0.0.1:2011/add_transaction
+curl -X POST -H "Content-Type: application/json" -d '{                      
+    "user_id_sold": 2,                                                                              
+    "user_id_bought": 1,
+    "item": "Product A",
+    "price": 10.99,
+    "quantity": 2
+}' http://127.0.0.1:2011/add_transaction
 
 Retrieve user history:
 curl http://localhost:2011/user_transactions/{user id}

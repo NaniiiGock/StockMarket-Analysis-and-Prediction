@@ -9,19 +9,26 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+
 class UserHistory(db.Model):
     __tablename__ = 'user_history'
-    transaction_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    transaction_id = db.Column(db.Integer, primary_key=True)
     user_id_sold = db.Column(db.Integer, nullable=False)
     user_id_bought = db.Column(db.Integer, nullable=False)
+    item = db.Column(db.String(255))
+    price = db.Column(db.Numeric)
+    quantity = db.Column(db.Numeric)
 
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
     data = request.json
     user_id_sold = data.get('user_id_sold')
     user_id_bought = data.get('user_id_bought')
+    item = data.get('item')
+    price = data.get('price')
+    quantity = data.get('quantity')
 
-    new_transaction = UserHistory(user_id_sold=user_id_sold, user_id_bought=user_id_bought)
+    new_transaction = UserHistory(user_id_sold=user_id_sold, user_id_bought=user_id_bought, item=item, price=price, quantity=quantity)
 
     try:
         db.session.add(new_transaction)
@@ -42,7 +49,10 @@ def get_user_transactions(user_id):
         transaction_data = {
             'transaction_id': transaction.transaction_id,
             'user_id_sold': transaction.user_id_sold,
-            'user_id_bought': transaction.user_id_bought
+            'user_id_bought': transaction.user_id_bought,
+            'item': transaction.item,
+            'price': float(transaction.price) if transaction.price is not None else None,
+            'quantity': float(transaction.quantity) if transaction.quantity is not None else None
         }
         if transaction.user_id_sold == user_id:
             transaction_data['action'] = 'Sold'

@@ -63,7 +63,10 @@ ALTER SEQUENCE public.login_table_id_seq OWNED BY public.login_table.id;
 CREATE TABLE public.user_history (
     transaction_id integer NOT NULL,
     user_id_sold integer NOT NULL,
-    user_id_bought integer NOT NULL
+    user_id_bought integer NOT NULL,
+    item VARCHAR(255),
+    price NUMERIC,
+    quantity NUMERIC
 );
 
 
