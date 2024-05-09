@@ -6,5 +6,5 @@ COPY . /app
 
 RUN pip install --no-cache-dir -r app/requirements.txt
 
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+# Run both app.py and user-history.py when the container launches
+CMD ["sh", "-c", "python app.py & python user-history.py"]

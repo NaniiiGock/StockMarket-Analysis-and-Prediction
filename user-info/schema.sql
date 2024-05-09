@@ -62,8 +62,8 @@ ALTER SEQUENCE public.login_table_id_seq OWNED BY public.login_table.id;
 
 CREATE TABLE public.user_history (
     transaction_id integer NOT NULL,
-    user_id integer NOT NULL,
-    sold_or_bought character varying(50) NOT NULL
+    user_id_sold integer NOT NULL,
+    user_id_bought integer NOT NULL
 );
 
 
@@ -153,9 +153,14 @@ ALTER TABLE ONLY public.user_history
 -- Name: user_history user_history_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: user
 --
 
-ALTER TABLE ONLY public.user_history
-    ADD CONSTRAINT user_history_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.login_table(id);
 
+-- Add foreign key constraints for user_id_bought and user_id_sold
+
+ALTER TABLE public.user_history 
+ADD CONSTRAINT user_history_user_id_bought_fkey FOREIGN KEY (user_id_bought) REFERENCES public.login_table(id);
+
+ALTER TABLE public.user_history 
+ADD CONSTRAINT user_history_user_id_sold_fkey FOREIGN KEY (user_id_sold) REFERENCES public.login_table(id);
 
 --
 -- Name: user_subscriptions user_subscriptions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: user
@@ -163,7 +168,6 @@ ALTER TABLE ONLY public.user_history
 
 ALTER TABLE ONLY public.user_subscriptions
     ADD CONSTRAINT user_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.login_table(id);
-
 
 --
 -- PostgreSQL database dump complete
