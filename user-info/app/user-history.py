@@ -9,21 +9,19 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-
 class UserHistory(db.Model):
     __tablename__ = 'user_history'
-    transaction_id = db.Column(db.Integer, primary_key=True)
+    transaction_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id_sold = db.Column(db.Integer, nullable=False)
     user_id_bought = db.Column(db.Integer, nullable=False)
 
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
     data = request.json
-    transaction_id = data.get('transaction_id')
     user_id_sold = data.get('user_id_sold')
     user_id_bought = data.get('user_id_bought')
 
-    new_transaction = UserHistory(transaction_id=transaction_id, user_id_sold=user_id_sold, user_id_bought=user_id_bought)
+    new_transaction = UserHistory(user_id_sold=user_id_sold, user_id_bought=user_id_bought)
 
     try:
         db.session.add(new_transaction)
