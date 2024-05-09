@@ -1,9 +1,10 @@
-CREATE KEYSPACE IF NOT EXISTS prices WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '2' };
+CREATE KEYSPACE IF NOT EXISTS prices WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '1' };
 
 CREATE TABLE prices.prices
 (
-    "token"  text,
+    token_  text,
     datetime timestamp,
     value    double,
-    PRIMARY KEY ("token", datetime)
-) WITH CLUSTERING ORDER BY ("token" DESC);
+    PRIMARY KEY (token_, datetime)
+) WITH CLUSTERING ORDER BY (datetime DESC);
+

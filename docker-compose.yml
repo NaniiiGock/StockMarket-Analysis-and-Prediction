@@ -1,34 +1,37 @@
+# TODO: change ports to be in corresponding range
 services:
   stock_api_zookeeper:
+    container_name: stock_api_zookeeper
     image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
   stock_api_kafka:
+    container_name: stock_api_kafka
     image: confluentinc/cp-kafka:latest
-    container_name: kafka
     depends_on:
-      - zookeeper
+      - stock_api_zookeeper
     environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:2003
+      KAFKA_ZOOKEEPER_CONNECT: stock_api_zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://stock_api_kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    ports:
-      - "2003:2003"
     volumes:
       - ./stock_api_kafka/start-kafka.sh:/usr/local/bin/start-kafka.sh
     command: ["bash", "/usr/local/bin/start-kafka.sh"]
 
   stock_api:
+    container_name: stock_api
     build:
       context: ./stock_api
       dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
     volumes:
       - ./stock_api:/app
 
   stock_api_cassandra:
+    container_name: stock_api_cassandra
     build:
       context: ./stock_api_cassandra
       dockerfile: Dockerfile

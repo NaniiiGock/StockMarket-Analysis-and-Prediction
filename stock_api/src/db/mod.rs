@@ -83,7 +83,7 @@ pub async fn insert_into_prices(
     session: Arc<Session>,
     pricestamp: PriceStamp,
 ) -> Result<()> {
-    let query = r#"INSERT INTO prices.prices (token, datetime, value) VALUES (?, ?, ?)"#;
+    let query = r#"INSERT INTO prices.prices (token_, datetime, value) VALUES (?, ?, ?)"#;
 
     let prepared_query = prepare_query(&session, query).await?;
 
@@ -98,7 +98,7 @@ pub async fn get_from_prices(
     start: DateTime<Utc>,
     end: DateTime<Utc>,
 ) -> Result<Vec<PriceStamp>> {
-    let query = "SELECT * FROM prices.prices WHERE token = ? AND datetime >= ? AND datetime <= ? ALLOW FILTERING;";
+    let query = "SELECT * FROM prices.prices WHERE token_ = ? AND datetime >= ? AND datetime <= ? ALLOW FILTERING;";
 
     let prepared_query = prepare_query(&session, query).await?;
 

@@ -96,7 +96,7 @@ pub async fn populate_prices(session: Arc<Session>, kafka_node: String) -> Resul
                     insert_into_prices(
                         session.clone(),
                         PriceStamp {
-                            token: token.to_owned(),
+                            token_: token.to_owned(),
                             datetime: price.0.datetime,
                             value: price.0.value,
                         },
