@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "2001:5000"
     depends_on:
       - db
     environment:
@@ -20,7 +20,7 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "2002:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
