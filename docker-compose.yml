@@ -38,6 +38,15 @@ services:
     volumes:
       - cassandra_data:/var/lib/cassandra
 
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+
+
 volumes:
   cassandra_data:
 
