@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Data Selection</title>
+</head>
+
+
+<body>
+    <div class="header">
+        <a href="{{ url_for('data_selection') }}">General Info</a>
+        <a href="{{ url_for('plot_list') }}">My Subscriptions</a>
+        <a href="{{ url_for('history_of_trades') }}">My History</a>
+    </div>
+    
+    <div class="data-container">
+        <div class="date-picker">
+            <input type="date">
+            <input type="date">
+        </div>
+        <div class="checklist">
+            <input type="checkbox" id="item1"><label for="item1">Item 1</label><br>
+            <input type="checkbox" id="item2"><label for="item2">Item 2</label><br>
+        </div>
+        <div class="plot">
+            <img src="{{ url_for('static', filename='images/picture.png') }}" alt="Plot">
+        </div>
+    </div>
+</body>
+</html>

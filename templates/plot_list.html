@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Chart Updates</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="header">
+        <a href="{{ url_for('data_selection') }}">General Info</a>
+        <a href="{{ url_for('plot_list') }}">My Subscriptions</a>
+        <a href="{{ url_for('history_of_trades') }}">My History</a> 
+    </div>
+
+
+    <blockquote>
+        <p>Here you can see the dynamic updates of the charts.</p>  
+    </blockquote>
+
+    <h1>Dynamic Charts</h1>
+
+    <div>
+        <h3>Title for Plot 1</h3>
+        <canvas id="plot1"></canvas>
+    </div>
+    <div>
+        <h3>Title for Plot 2</h3>
+        <canvas id="plot2"></canvas>
+    </div>
+
+    <div>
+        <h3>Title for Plot 3</h3>
+        <canvas id="plot3"></canvas>
+    </div>
+
+    <div>
+        <h3>Title for Plot 4</h3>
+        <canvas id="plot4"></canvas>
+    </div>
+
+    <div>
+        <h3>Title for Plot 5</h3>
+        <canvas id="plot5"></canvas>
+    </div>
+
+    <script>
+        function createChart(canvasId) {
+            return new Chart(document.getElementById(canvasId), {
+                type: 'line',
+
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Data for ' + canvasId,
+                        data: [],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        },
+                        x: {
+                            display: true,
+                            type: 'linear',
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart(chart, data) {
+            const maxDataPoints = 40;
+            
+            chart.data.labels = data.labels;
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data = data.values;
+            });
+            if (chart.data.labels.length > maxDataPoints) {
+                
+                chart.data.labels = chart.data.labels.slice(-maxDataPoints);
+                chart.data.datasets.forEach((dataset) => {
+                    dataset.data = dataset.data.slice(-maxDataPoints);
+                });
+            }
+            chart.update();
+        }
+
+        function fetchDataAndUpdate(chart, url) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => updateChart(chart, data))
+                .catch(error => console.error('Error fetching data:', error));
+        
+
+        }
+
+        var chart1 = createChart('plot1');
+        var chart2 = createChart('plot2');
+        var chart3 = createChart('plot3');
+        var chart4 = createChart('plot4');
+        var chart5 = createChart('plot5');
+
+        setInterval(() => {
+            fetchDataAndUpdate(chart1, '/data-for-plot1');
+            fetchDataAndUpdate(chart2, '/data-for-plot2');
+            fetchDataAndUpdate(chart3, '/data-for-plot3');
+            fetchDataAndUpdate(chart4, '/data-for-plot4');
+            fetchDataAndUpdate(chart5, '/data-for-plot5');
+        }, 1500); 
+    </script>
+
+
+
+
+</body>
+</html>
