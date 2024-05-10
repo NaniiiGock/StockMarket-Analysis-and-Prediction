@@ -14,7 +14,7 @@ use crate::db::insert_into_prices;
 use crate::models::PriceStamp;
 use crate::routes::price::{price_of_token, QueryPrice};
 
-pub static TOKEN_LIST: [&str; 6] = ["HNT", "SOL", "soLINK", "tBTC", "Bonk", "W"];
+pub static TOKEN_LIST: [&str; 6] = ["HNT", "SOL", "soLINK", "TBTC", "Bonk", "W"];
 pub static VS_TOKEN: &str = "USDT";
 
 #[derive(Debug, Error)]
@@ -58,7 +58,7 @@ pub async fn populate_prices(session: Arc<Session>, kafka_node: String) -> Resul
 
     println!("Sending messages...");
 
-    let mut last_db_update = Instant::now();
+    let mut last_db_updates = vec![Instant::now(); TOKEN_LIST.len()];
 
     loop {
         for (idx, &token) in TOKEN_LIST.iter().enumerate() {
@@ -79,32 +79,25 @@ pub async fn populate_prices(session: Arc<Session>, kafka_node: String) -> Resul
 
             // sending to kafka
             producer
-                .send(record, std::time::Duration::from_secs(0))
+                .send(record, Duration::from_secs(0))
                 .await
                 .map_err(|e| anyhow!(e.0.to_string() + &format!("({:?})", e.0)))?;
 
             // storing to historical DB
             // Check if a second has passed to update the database
-            if last_db_update.elapsed() >= Duration::from_secs(1) {
-                for &token in TOKEN_LIST.iter() {
-                    let price = price_of_token(Query(QueryPrice {
-                        id: token.to_owned(),
-                        vs_token: VS_TOKEN.to_owned(),
-                    }))
-                    .await?;
-
-                    insert_into_prices(
-                        session.clone(),
-                        PriceStamp {
-                            token_: token.to_owned(),
-                            datetime: price.0.datetime,
-                            value: price.0.value,
-                        },
-                    )
-                    .await?;
-                }
+            if last_db_updates[idx].elapsed() >= Duration::from_secs(1) {
+                println!("inserting {} into db!", token);
+                insert_into_prices(
+                    session.clone(),
+                    PriceStamp {
+                        token_: token.to_owned(),
+                        datetime: price.0.datetime,
+                        value: price.0.value,
+                    },
+                )
+                .await?;
                 // Reset the timer
-                last_db_update = Instant::now();
+                last_db_updates[idx] = Instant::now();
             }
 
             // Yield to the scheduler to prevent hogging the CPU

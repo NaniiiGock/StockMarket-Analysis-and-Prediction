@@ -72,6 +72,7 @@ async fn main() -> Result<()> {
     );
     
     let state = ServerState { session, kafka_node };
+    let clonned_state = state.clone();
 
     println!("Starting server at {}", addr);
     
@@ -79,14 +80,24 @@ async fn main() -> Result<()> {
         .await
         .unwrap();
     
-    tokio::spawn(populate_prices(state.session.clone(), state.kafka_node.clone()));
+    
+    
+    tokio::spawn( async move {
+            match populate_prices(state.session.clone(), state.kafka_node.clone()).await {
+                Ok(_) => {}
+                Err(e) => {
+                    println!("{e:?}")
+                }
+            }
+    }
+    );
 
     let app = Router::new()
         .route("/", get(|| async {"Placeholder for main page"}))
         .route("/price", get(routes::price::price_of_token))
         .route("/tokens", get(routes::tokens::get_token_list))
         .route("/price/interval", get(routes::price::price_of_token_interval))
-        .with_state(state);
+        .with_state(clonned_state);
     
     axum::serve(listener, app.into_make_service())
         .with_graceful_shutdown(graceful_shutdown())

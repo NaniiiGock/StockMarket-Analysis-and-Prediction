@@ -12,7 +12,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         users[username] = password 
-        #### here I pass data to servvice with logging to chech if user is in database####
+        #### here I pass data to service with logging to check if user is in database####
         return redirect(url_for('data_selection'))
     return render_template('login.html')
 
@@ -69,22 +69,6 @@ def data_for_plot5():
     data_store['plot5'].append(new_data)
     return jsonify({'labels': list(range(len(data_store['plot5']))), 'values': data_store['plot5']})
 
-# data_points = [
-#     {"date": "2024-05-01", "name": "Dataset1", "value": 10},
-#     {"date": "2024-05-01", "name": "Dataset2", "value": 20},
-# ]
-
-# @app.route('/data')
-# def get_data():
-#     start_date = request.args.get('start_date')
-#     end_date = request.args.get('end_date')
-#     name = request.args.get('name')
-
-#     filtered_data = # here i have to get data from service
-#     labels = [point['date'] for point in filtered_data]
-#     values = [point['value'] for point in filtered_data]
-#     return jsonify(labels=labels, values=values)
-
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080)

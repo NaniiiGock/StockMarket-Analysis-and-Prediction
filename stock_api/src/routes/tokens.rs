@@ -3,6 +3,7 @@
 use serde::Deserialize;
 use std::collections::HashMap;
 use axum::{debug_handler, Json};
+use clap::builder::TypedValueParser;
 
 pub mod error {
     use axum::http::StatusCode;
@@ -38,6 +39,7 @@ pub mod result {
 }
 
 use result::Result;
+use crate::utils::streaming::TOKEN_LIST;
 
 const TOKEN_LIST_URI: &str = "https://token.jup.ag/strict";
 
@@ -62,17 +64,16 @@ pub struct Tokens {
 }
 
 /// Loads STRICT token list from Jupiter.
-#[debug_handler]
 pub async fn get_token_list() -> Result<Json<Vec<String>>> {
-    let tokens = reqwest::get(TOKEN_LIST_URI).await?;
+    // let tokens = reqwest::get(TOKEN_LIST_URI).await?;
+    // 
+    // let tokens: Vec<Token> = tokens.json().await?;
+    // 
+    // let mut token_addresses = vec![];
+    // 
+    // for token in tokens {
+    //     token_addresses.push(token.symbol);
+    // }
 
-    let tokens: Vec<Token> = tokens.json().await?;
-
-    let mut token_addresses = vec![];
-
-    for token in tokens {
-        token_addresses.push(token.symbol);
-    }
-
-    Ok(Json(token_addresses))
+    Ok(Json(TOKEN_LIST.to_vec().iter().map(|&s| s.to_owned()).collect()))
 }
