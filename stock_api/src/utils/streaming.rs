@@ -8,7 +8,7 @@ use rdkafka::ClientConfig;
 use scylla::Session;
 use serde_json::to_string;
 use thiserror::Error;
-use tokio::time::{Duration, Instant};
+use tokio::time::Duration;
 
 use crate::db::insert_into_prices;
 use crate::models::PriceStamp;
@@ -48,17 +48,11 @@ pub enum Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-pub async fn populate_prices(session: Arc<Session>, kafka_node: String) -> Result<()> {
+pub async fn stream_prices(kafka_node: String) -> Result<()> {
     let producer: FutureProducer = ClientConfig::new()
         .set("bootstrap.servers", kafka_node)
         .set("message.timeout.ms", "50000")
         .create()?;
-
-    let counter = 0_usize;
-
-    println!("Sending messages...");
-
-    let mut last_db_updates = vec![Instant::now(); TOKEN_LIST.len()];
 
     loop {
         for (idx, &token) in TOKEN_LIST.iter().enumerate() {
@@ -70,11 +64,9 @@ pub async fn populate_prices(session: Arc<Session>, kafka_node: String) -> Resul
 
             let message = to_string(&price.0)?;
 
-            let key = counter.to_string();
-
             let record = FutureRecord::to("prices")
                 .payload(&message)
-                .key(&key)
+                .key("")
                 .partition(idx as i32);
 
             // sending to kafka
@@ -82,26 +74,31 @@ pub async fn populate_prices(session: Arc<Session>, kafka_node: String) -> Resul
                 .send(record, Duration::from_secs(0))
                 .await
                 .map_err(|e| anyhow!(e.0.to_string() + &format!("({:?})", e.0)))?;
+        }
+    }
+}
 
-            // storing to historical DB
-            // Check if a second has passed to update the database
-            if last_db_updates[idx].elapsed() >= Duration::from_secs(1) {
-                println!("inserting {} into db!", token);
-                insert_into_prices(
-                    session.clone(),
-                    PriceStamp {
-                        token_: token.to_owned(),
-                        datetime: price.0.datetime,
-                        value: price.0.value,
-                    },
-                )
-                .await?;
-                // Reset the timer
-                last_db_updates[idx] = Instant::now();
-            }
+pub async fn populate_prices(session: Arc<Session>) -> Result<()> {
+    let mut interval = tokio::time::interval(Duration::from_secs(1));
+    loop {
+        interval.tick().await;
 
-            // Yield to the scheduler to prevent hogging the CPU
-            tokio::task::yield_now().await;
+        for (_idx, &token) in TOKEN_LIST.iter().enumerate() {
+            let price = price_of_token(Query(QueryPrice {
+                id: token.to_owned(),
+                vs_token: VS_TOKEN.to_owned(),
+            }))
+            .await?;
+
+            insert_into_prices(
+                session.clone(),
+                PriceStamp {
+                    token_: token.to_owned(),
+                    datetime: price.0.datetime,
+                    value: price.0.value,
+                },
+            )
+            .await?;
         }
     }
 }

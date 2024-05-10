@@ -65,15 +65,5 @@ pub struct Tokens {
 
 /// Loads STRICT token list from Jupiter.
 pub async fn get_token_list() -> Result<Json<Vec<String>>> {
-    // let tokens = reqwest::get(TOKEN_LIST_URI).await?;
-    // 
-    // let tokens: Vec<Token> = tokens.json().await?;
-    // 
-    // let mut token_addresses = vec![];
-    // 
-    // for token in tokens {
-    //     token_addresses.push(token.symbol);
-    // }
-
     Ok(Json(TOKEN_LIST.to_vec().iter().map(|&s| s.to_owned()).collect()))
 }

@@ -1,9 +1,9 @@
 use std::net::SocketAddr;
 use std::sync::Arc;
-use anyhow::anyhow;
-use axum::{Router};
-use axum::routing::get;
 
+use anyhow::anyhow;
+use axum::Router;
+use axum::routing::get;
 use clap::Parser;
 use thiserror::Error;
 use tokio::net::TcpListener;
@@ -11,7 +11,7 @@ use tokio::signal;
 
 use crate::args::{Args, ServerState};
 use crate::db::create_session;
-use crate::utils::streaming::populate_prices;
+use crate::utils::streaming::{populate_prices, stream_prices};
 
 pub mod args;
 pub mod db;
@@ -30,7 +30,7 @@ pub async fn graceful_shutdown() {
     };
 
     #[cfg(unix)]
-        let terminate = async {
+    let terminate = async {
         signal::unix::signal(signal::unix::SignalKind::terminate())
             .expect("failed to install signal handler")
             .recv()
@@ -38,7 +38,7 @@ pub async fn graceful_shutdown() {
     };
 
     #[cfg(not(unix))]
-        let terminate = std::future::pending::<()>();
+    let terminate = std::future::pending::<()>();
 
     tokio::select! {
         _ = ctrl_c => {},
@@ -52,7 +52,7 @@ pub enum Error {
     Error {
         #[from]
         source: anyhow::Error,
-    }
+    },
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -60,49 +60,60 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[tokio::main]
 async fn main() -> Result<()> {
     let Args {
-        https_port, 
+        https_port,
         cassandra_node,
-        kafka_node
+        kafka_node,
     } = Args::parse();
-    
+
     let addr = SocketAddr::from(([0, 0, 0, 0], https_port));
-    let session = Arc::new(create_session(&cassandra_node)
-        .await
-        .map_err(|e| anyhow!(e.to_string()))?
+    let session = Arc::new(
+        create_session(&cassandra_node)
+            .await
+            .map_err(|e| anyhow!(e.to_string()))?,
     );
-    
-    let state = ServerState { session, kafka_node };
+
+    let state = ServerState {
+        session,
+        kafka_node,
+    };
     let clonned_state = state.clone();
 
     println!("Starting server at {}", addr);
-    
-    let listener = TcpListener::bind(addr)
-        .await
-        .unwrap();
-    
-    
-    
-    tokio::spawn( async move {
-            match populate_prices(state.session.clone(), state.kafka_node.clone()).await {
-                Ok(_) => {}
-                Err(e) => {
-                    println!("{e:?}")
-                }
+
+    let listener = TcpListener::bind(addr).await.unwrap();
+
+    tokio::spawn(async move {
+        match stream_prices(state.kafka_node.clone()).await {
+            Ok(_) => {}
+            Err(e) => {
+                println!("{e:?}")
             }
-    }
-    );
+        }
+    });
+    
+    tokio::spawn(async move {
+        match populate_prices(state.session.clone()).await {
+            Ok(_) => {}
+            Err(e) => {
+                println!("{e:?}")
+            }
+        }
+    });
 
     let app = Router::new()
-        .route("/", get(|| async {"Placeholder for main page"}))
+        .route("/", get(|| async { "Placeholder for main page" }))
         .route("/price", get(routes::price::price_of_token))
         .route("/tokens", get(routes::tokens::get_token_list))
-        .route("/price/interval", get(routes::price::price_of_token_interval))
+        .route(
+            "/price/interval",
+            get(routes::price::price_of_token_interval),
+        )
         .with_state(clonned_state);
-    
+
     axum::serve(listener, app.into_make_service())
         .with_graceful_shutdown(graceful_shutdown())
         .await
         .map_err(|e| anyhow!(e.to_string()))?;
-    
+
     Ok(())
 }
