@@ -24,7 +24,7 @@
 
     <div>
         <h3>Title for HNT</h3>
-        <canvas id="plot1"></canvas>
+        <canvas id="HNT"></canvas>
     </div>
     <div>
         <h3>Title for SOL</h3>
@@ -103,16 +103,14 @@
                 .then(response => response.json())
                 .then(data => updateChart(chart, data))
                 .catch(error => console.error('Error fetching data:', error));
-        
-
         }
 
-        var chart1 = createChart('plot1');
+        var chart1 = createChart('HNT');
         var chart2 = createChart('SOL');
         var chart3 = createChart('soLINK');
         var chart4 = createChart('TBTC');
         var chart5 = createChart('Bonk');
-        var chart5 = createChart('W');
+        var chart6 = createChart('W');
 
         setInterval(() => {
             fetchDataAndUpdate(chart1, '/data_for_HNT');
@@ -120,12 +118,9 @@
             fetchDataAndUpdate(chart3, '/data_for_soLINK');
             fetchDataAndUpdate(chart4, '/data_for_TBTC');
             fetchDataAndUpdate(chart5, '/data_for_Bonk');
-            fetchDataAndUpdate(chart5, '/data_for_W');
-        }, 3000);
+            fetchDataAndUpdate(chart6, '/data_for_W');
+        }, 1500);
     </script>
-
-
-
 
 </body>
 </html>

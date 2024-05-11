@@ -67,7 +67,7 @@ async def consume():
 
     await consumer.start()
     try:
-        for message in consumer:
+        async for message in consumer:
             print(f"Received message: {message.value} on partition {message.partition}")
             if message.partition in partition_to_plot:
                 data_store[partition_to_plot[message.partition]].append(message.value['value'])
@@ -141,5 +141,4 @@ def data_for_W():
 
 if __name__ == '__main__':
     executor.submit(start_async_tasks)
-    app.run(host='0.0.0.0', port=8080, debug=True)
-
+    app.run(host='0.0.0.0', port=8080)
