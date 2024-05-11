@@ -4,6 +4,8 @@ import redis
 import threading
 import os
 from sqlalchemy import create_engine
+import requests
+import json
 
 
 db_name = 'database'
@@ -15,6 +17,8 @@ db_port = '6432'
 
 class TradeMatchingSystem:
     def __init__(self):
+        self.logging_url = "http://127.0.0.1:2011/add_transaction"
+
         print("Connecting to Kafka and Redis...")
         # Connect to Redis
         redis_node = os.getenv('REDIS_NODE', 'localhost')
@@ -33,11 +37,26 @@ class TradeMatchingSystem:
 
         print("Engine is Connected")
 
+
     def insert_matched_order(self, buy_order_id, sell_order_id, item, price, quantity):
-        sql = """INSERT INTO matched_orders (buy_order_id, sell_order_id, item, price, quantity) 
-                 VALUES (%s, %s, %s, %s, %s)"""
-        data = (buy_order_id, sell_order_id, item, price, quantity)
-        self.db.execute(sql, data)
+        data = {
+            "user_id_sold": sell_order_id,
+            "user_id_bought": buy_order_id,
+            "item": item,
+            "price": price,
+            "quantity": quantity
+        }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = requests.post(self.logging_url, headers=headers, data=json.dumps(data))
+
+        if response.status_code == 200:
+            print("Transaction added successfully.")
+        else:
+            print("Failed to add transaction. Status code:", response.status_code)
+
+
 
     def start(self):
         # Consume orders from Kafka
