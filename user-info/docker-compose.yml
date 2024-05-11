@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: psqldb
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: psqldb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "2002:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
+
+  web:
+    container_name: user-backend
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "2010:5000"
+      - "2011:5001"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://user:password@db/psqldb
+    volumes:
+      - ./app:/app
+
+volumes:
+  db-data:
