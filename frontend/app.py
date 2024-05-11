@@ -46,6 +46,11 @@ async def fetch_tokens(retries=10, delay=5):
 
 currency_list = asyncio.run(fetch_tokens())
 
+
+#================================================================================================
+#                           KAFKA
+#================================================================================================
+
 async def consume_kafka_messages(topic, kafka_server, partitions):
     consumer = AIOKafkaConsumer(
         bootstrap_servers=kafka_server
@@ -72,6 +77,10 @@ def start_kafka_consumer():
     asyncio.set_event_loop(loop)
     loop.create_task(consume_kafka_messages(kafka_topic, kafka_server, partitions))
 
+#================================================================================================
+#                           ROUTES
+#================================================================================================
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -81,6 +90,57 @@ def login():
         #### here I pass data to servvice with logging to chech if user is in database####
         return redirect(url_for('data_selection'))
     return render_template('login.html')
+
+@app.route('/data-selection')
+def data_selection():
+    return render_template('data_selection.html')
+
+@app.route('/history-of-trades')
+def history_of_trades():
+    return render_template('history_of_trades.html')
+
+# =================================================================================================
+#                           PLOTS
+# =================================================================================================
+
+
+@app.route('/plot-list')
+def plot_list():
+    return render_template('plot_list.html')
+
+@app.route('/data-for-plot1')
+def data_for_plot1():
+    new_data = random.randint(0, 50)
+    data_store['plot1'].append(new_data)
+    return jsonify({'labels': list(range(len(data_store['plot1']))), 'values': data_store['plot1']})
+
+@app.route('/data-for-plot2')
+def data_for_plot2():
+    new_data = random.randint(0, 50)
+    data_store['plot2'].append(new_data)
+    return jsonify({'labels': list(range(len(data_store['plot2']))), 'values': data_store['plot2']})
+
+@app.route('/data-for-plot3')
+def data_for_plot3():
+    new_data = random.randint(0, 50)
+    data_store['plot3'].append(new_data)
+    return jsonify({'labels': list(range(len(data_store['plot3']))), 'values': data_store['plot3']})
+
+@app.route('/data-for-plot4')
+def data_for_plot4():
+    new_data = random.randint(0, 50)
+    data_store['plot4'].append(new_data)
+    return jsonify({'labels': list(range(len(data_store['plot4']))), 'values': data_store['plot4']})
+
+@app.route('/data-for-plot5')
+def data_for_plot5():
+    new_data = random.randint(0, 50)
+    data_store['plot5'].append(new_data)
+    return jsonify({'labels': list(range(len(data_store['plot5']))), 'values': data_store['plot5']})
+
+####################################################################################################
+#                           START THE APP
+####################################################################################################
 
 if __name__ == '__main__':
     start_kafka_consumer()
