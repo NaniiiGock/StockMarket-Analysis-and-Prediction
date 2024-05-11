@@ -48,8 +48,7 @@ def get_user_transactions(user_id):
     for transaction in user_transactions:
         transaction_data = {
             'transaction_id': transaction.transaction_id,
-            'user_id_sold': transaction.user_id_sold,
-            'user_id_bought': transaction.user_id_bought,
+            'action': None,
             'item': transaction.item,
             'price': float(transaction.price) if transaction.price is not None else None,
             'quantity': float(transaction.quantity) if transaction.quantity is not None else None
