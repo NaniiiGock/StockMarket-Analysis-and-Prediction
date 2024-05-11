@@ -23,27 +23,32 @@
     <h1>Dynamic Charts</h1>
 
     <div>
-        <h3>Title for Plot 1</h3>
+        <h3>Title for HNT</h3>
         <canvas id="plot1"></canvas>
     </div>
     <div>
-        <h3>Title for Plot 2</h3>
-        <canvas id="plot2"></canvas>
+        <h3>Title for SOL</h3>
+        <canvas id="SOL"></canvas>
     </div>
 
     <div>
-        <h3>Title for Plot 3</h3>
-        <canvas id="plot3"></canvas>
+        <h3>Title for soLINK</h3>
+        <canvas id="soLINK"></canvas>
     </div>
 
     <div>
-        <h3>Title for Plot 4</h3>
-        <canvas id="plot4"></canvas>
+        <h3>Title for TBTC</h3>
+        <canvas id="TBTC"></canvas>
     </div>
 
     <div>
-        <h3>Title for Plot 5</h3>
-        <canvas id="plot5"></canvas>
+        <h3>Title for Bonk</h3>
+        <canvas id="Bonk"></canvas>
+    </div>
+
+    <div>
+        <h3>Title for W</h3>
+        <canvas id="W"></canvas>
     </div>
 
     <script>
@@ -103,18 +108,20 @@
         }
 
         var chart1 = createChart('plot1');
-        var chart2 = createChart('plot2');
-        var chart3 = createChart('plot3');
-        var chart4 = createChart('plot4');
-        var chart5 = createChart('plot5');
+        var chart2 = createChart('SOL');
+        var chart3 = createChart('soLINK');
+        var chart4 = createChart('TBTC');
+        var chart5 = createChart('Bonk');
+        var chart5 = createChart('W');
 
         setInterval(() => {
-            fetchDataAndUpdate(chart1, '/data-for-plot1');
-            fetchDataAndUpdate(chart2, '/data-for-plot2');
-            fetchDataAndUpdate(chart3, '/data-for-plot3');
-            fetchDataAndUpdate(chart4, '/data-for-plot4');
-            fetchDataAndUpdate(chart5, '/data-for-plot5');
-        }, 1500); 
+            fetchDataAndUpdate(chart1, '/data_for_HNT');
+            fetchDataAndUpdate(chart2, '/data_for_SOL');
+            fetchDataAndUpdate(chart3, '/data_for_soLINK');
+            fetchDataAndUpdate(chart4, '/data_for_TBTC');
+            fetchDataAndUpdate(chart5, '/data_for_Bonk');
+            fetchDataAndUpdate(chart5, '/data_for_W');
+        }, 3000);
     </script>
 
 
