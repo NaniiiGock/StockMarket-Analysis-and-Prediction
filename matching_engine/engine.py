@@ -18,14 +18,14 @@ class TradeMatchingSystem:
         redis_node = os.getenv('REDIS_NODE', 'localhost')
         redis_port = int(os.getenv('REDIS_PORT', '6379'))
         self.redis_client = redis.RedisCluster(host=redis_node, port=redis_port)
-        # self.redis_client = redis.RedisCluster(startup_nodes=startup_nodes, decode_responses=True)
         self.redis_client.flushdb()
 
         # Connect to Kafka
         self.consumer = KafkaConsumer('orders', bootstrap_servers='matching_engine_kafka:9092', group_id='my-group')
-        # auto_offset_reset='earliest',
 
         self.matching_threads = {}  # Dictionary to store matching threads for each token
+
+        self.logging_url = "http://user_info:2011/add_transaction"
 
         logging.info("Engine is Connected")
 
@@ -110,6 +110,26 @@ class TradeMatchingSystem:
 
             logging.info(f"Matched order for {token}: Buy Order ID {buy_id} at {buy_price} USD with quantity {buy_quantity}"
                          f" matched with Sell Order ID {sell_id} at {sell_price} USD with quantity {sell_quantity}")
+            self.insert_matched_order(buy_id, sell_id, item, max(buy_price, sell_price), min(buy_quantity, sell_quantity))
+
+
+    def insert_matched_order(self, buy_order_id, sell_order_id, item, price, quantity):
+        data = {
+            "user_id_sold": sell_order_id,
+            "user_id_bought": buy_order_id,
+            "item": item,
+            "price": price,
+            "quantity": quantity
+        }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = requests.post(self.logging_url, headers=headers, data=json.dumps(data))
+
+        if response.status_code == 200:
+            print("Transaction added successfully.")
+        else:
+            print("Failed to add transaction. Status code:", response.status_code)
 
 
 trade_matching_system = TradeMatchingSystem()

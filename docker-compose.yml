@@ -6,7 +6,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
-      - stock_api_net
+      - stock_api_to_frontend
 
   stock_api_kafka:
     container_name: stock_api_kafka
@@ -21,7 +21,7 @@ services:
       - ./stock_api_kafka/start-kafka.sh:/usr/local/bin/start-kafka.sh
     command: ["bash", "/usr/local/bin/start-kafka.sh"]
     networks:
-      - stock_api_net
+      - stock_api_to_frontend
 
   stock_api:
     container_name: stock_api
@@ -33,7 +33,7 @@ services:
     volumes:
       - ./stock_api:/app
     networks:
-      - stock_api_net
+      - stock_api_to_frontend
 
   stock_api_cassandra:
     container_name: stock_api_cassandra
@@ -43,7 +43,7 @@ services:
     volumes:
       - cassandra_data:/var/lib/cassandra
     networks:
-      - stock_api_net
+      - stock_api_to_frontend
 
   frontend:
     container_name: frontend
@@ -55,9 +55,9 @@ services:
     volumes:
       - ./frontend:/app
     networks:
-      - stock_api_net
-      - user_info_net
-      - matching_engine_net
+      stock_api_to_frontend:
+      user_info_to_frontend:
+      matching_engine_to_frontend:
 
   matching_engine_zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -65,6 +65,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      matching_engine_to_frontend:
 
   matching_engine_kafka:
     image: confluentinc/cp-kafka:latest
@@ -83,6 +85,8 @@ services:
       interval: 15s
       timeout: 10s
       retries: 10
+    networks:
+      matching_engine_to_frontend:
 
   matching_engine_redis_0:
     container_name: matching_engine_redis_0
@@ -92,6 +96,8 @@ services:
       - "9079:6379"
     volumes:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
 
   matching_engine_redis_1:
     container_name: matching_engine_redis_1
@@ -101,6 +107,8 @@ services:
       - "9080:6379"
     volumes:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
 
   matching_engine_redis_2:
     container_name: matching_engine_redis_2
@@ -110,6 +118,8 @@ services:
       - "9081:6379"
     volumes:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
 
   matching_engine_redis_3:
     container_name: matching_engine_redis_3
@@ -119,6 +129,8 @@ services:
       - "9082:6379"
     volumes:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
 
   matching_engine_redis_4:
     container_name: matching_engine_redis_4
@@ -128,6 +140,8 @@ services:
       - "9083:6379"
     volumes:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
 
   matching_engine_redis_5:
     container_name: matching_engine_redis_5
@@ -137,6 +151,8 @@ services:
       - "9084:6379"
     volumes:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
 
   matching_engine_redis_cluster:
     container_name: matching_engine_redis_cluster
@@ -148,6 +164,8 @@ services:
       - matching_engine_redis_2
     volumes:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
 
   matching_engine_0:
     container_name: matching_engine_0
@@ -162,6 +180,9 @@ services:
     depends_on:
       matching_engine_kafka:
         condition: service_healthy
+    networks:
+      matching_engine_to_frontend:
+      matching_engine_to_user_info:
 
   matching_engine_1:
     container_name: matching_engine_1
@@ -176,6 +197,9 @@ services:
     depends_on:
       matching_engine_kafka:
         condition: service_healthy
+    networks:
+      matching_engine_to_frontend:
+      matching_engine_to_user_info:
 
   matching_engine_2:
     container_name: matching_engine_2
@@ -190,45 +214,58 @@ services:
     depends_on:
       matching_engine_kafka:
         condition: service_healthy
+    networks:
+      matching_engine_to_frontend:
+      matching_engine_to_user_info:
 
+  user_info_db:
+    container_name: user_info_db
+    image: postgres:alpine
+    environment:
+      POSTGRES_DB: psqldb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "2002:5432"
+    volumes:
+      - user_info_db_data:/var/lib/postgresql/data
+      - ./user_info_db/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
+    networks:
+      user_info_to_frontend:
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
+      interval: 10s
+      timeout: 60s
+      retries: 5
 
-
-#  user_info_db:
-#    container_name: user_info_db
-#    image: postgres:alpine
-#    environment:
-#      POSTGRES_DB: psqldb
-#      POSTGRES_USER: user
-#      POSTGRES_PASSWORD: password
-#    ports:
-#      - "2002:5432"
-#    volumes:
-#      - user_info_db_data:/var/lib/postgresql/data
-#      - ./user_info_db/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
-#
-#  user_info:
-#    container_name: user_info
-#    build:
-#      context: user_info
-#      dockerfile: Dockerfile
-#    ports:
-#      - "2010:5000"
-#      - "2011:5001"
-#    depends_on:
-#      - user_info_db
-#    environment:
-#      - DATABASE_URL=postgresql://user:password@user_info_db/psqldb
-#    volumes:
-#      - ./user_info/app:/app
+  user_info:
+    container_name: user_info
+    build:
+      context: user_info
+      dockerfile: Dockerfile
+    ports:
+      - "2010:5000"
+      - "2011:5001"
+    depends_on:
+      - user_info_db
+    environment:
+      - DATABASE_URL=postgresql://user:password@user_info_db/psqldb
+    volumes:
+      - ./user_info/app:/app
+    networks:
+      user_info_to_frontend:
+      matching_engine_to_user_info:
 
 volumes:
   cassandra_data:
   user_info_db_data:
 
 networks:
-  stock_api_net:
+  stock_api_to_frontend:
     driver: bridge
-  user_info_net:
+  user_info_to_frontend:
     driver: bridge
-  matching_engine_net:
+  matching_engine_to_frontend:
+    driver: bridge
+  matching_engine_to_user_info:
     driver: bridge
