@@ -18,6 +18,11 @@ services:
     volumes:
       - ./matching_engine_kafka/start-kafka.sh:/usr/local/bin/start-kafka.sh
     command: ["bash", "/usr/local/bin/start-kafka.sh"]
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "kafka-topics --list --bootstrap-server 0.0.0.0:9092 | grep -qw orders" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
 
   matching_engine_redis_0:
     image: redis:6.0-alpine
@@ -85,12 +90,12 @@ services:
       - ./matching_engine:/app
     environment:
       - REDIS_PORT=6379
-      - REDIS_NODE_0=matching_engine_redis_0
-      - REDIS_NODE_1=matching_engine_redis_1
-      - REDIS_NODE_2=matching_engine_redis_2
+      - REDIS_NODE=matching_engine_redis_0
     depends_on:
-      - matching_engine_redis_cluster
-      - matching_engine_kafka
+#      matching_engine_redis_cluster:
+#        condition: service_healthy
+      matching_engine_kafka:
+        condition: service_healthy
 
   matching_engine_1:
     build:
@@ -100,12 +105,12 @@ services:
       - ./matching_engine:/app
     environment:
       - REDIS_PORT=6379
-      - REDIS_NODE_0=matching_engine_redis_0
-      - REDIS_NODE_1=matching_engine_redis_1
-      - REDIS_NODE_2=matching_engine_redis_2
+      - REDIS_NODE=matching_engine_redis_0
     depends_on:
-      - matching_engine_redis_cluster
-      - matching_engine_kafka
+#      matching_engine_redis_cluster:
+#        condition: service_healthy
+      matching_engine_kafka:
+        condition: service_healthy
 
   matching_engine_2:
     build:
@@ -115,9 +120,9 @@ services:
       - ./matching_engine:/app
     environment:
       - REDIS_PORT=6379
-      - REDIS_NODE_0=matching_engine_redis_0
-      - REDIS_NODE_1=matching_engine_redis_1
-      - REDIS_NODE_2=matching_engine_redis_2
+      - REDIS_NODE=matching_engine_redis_0
     depends_on:
-      - matching_engine_redis_cluster
-      - matching_engine_kafka
+#      matching_engine_redis_cluster:
+#        condition: service_healthy
+      matching_engine_kafka:
+        condition: service_healthy

@@ -15,12 +15,9 @@ class TradeMatchingSystem:
     def __init__(self):
         logging.info("Connecting to Kafka and Redis...")
         # Connect to Redis
-        redis_node = os.getenv('REDIS_NODE_0', 'localhost')
+        redis_node = os.getenv('REDIS_NODE', 'localhost')
         redis_port = int(os.getenv('REDIS_PORT', '6379'))
         self.redis_client = redis.RedisCluster(host=redis_node, port=redis_port)
-        startup_nodes = [(os.getenv('REDIS_NODE_0', 'localhost'), redis_port),
-                         (os.getenv('REDIS_NODE_1', 'localhost'), redis_port),
-                         (os.getenv('REDIS_NODE_2', 'localhost'), redis_port)]
         # self.redis_client = redis.RedisCluster(startup_nodes=startup_nodes, decode_responses=True)
         self.redis_client.flushdb()
 
