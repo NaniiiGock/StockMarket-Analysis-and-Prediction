@@ -79,6 +79,9 @@ services:
       - matching_engine_redis_0
       - matching_engine_redis_1
       - matching_engine_redis_2
+      - matching_engine_redis_3
+      - matching_engine_redis_4
+      - matching_engine_redis_5
     volumes:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
 
@@ -92,8 +95,6 @@ services:
       - REDIS_PORT=6379
       - REDIS_NODE=matching_engine_redis_0
     depends_on:
-#      matching_engine_redis_cluster:
-#        condition: service_healthy
       matching_engine_kafka:
         condition: service_healthy
 
@@ -107,8 +108,6 @@ services:
       - REDIS_PORT=6379
       - REDIS_NODE=matching_engine_redis_0
     depends_on:
-#      matching_engine_redis_cluster:
-#        condition: service_healthy
       matching_engine_kafka:
         condition: service_healthy
 
@@ -122,7 +121,5 @@ services:
       - REDIS_PORT=6379
       - REDIS_NODE=matching_engine_redis_0
     depends_on:
-#      matching_engine_redis_cluster:
-#        condition: service_healthy
       matching_engine_kafka:
         condition: service_healthy
