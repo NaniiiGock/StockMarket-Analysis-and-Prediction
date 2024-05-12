@@ -5,6 +5,7 @@ import threading
 import os
 import logging
 import sys
+import requests
 
 
 # Set up logging to stdout
@@ -110,14 +111,13 @@ class TradeMatchingSystem:
 
             logging.info(f"Matched order for {token}: Buy Order ID {buy_id} at {buy_price} USD with quantity {buy_quantity}"
                          f" matched with Sell Order ID {sell_id} at {sell_price} USD with quantity {sell_quantity}")
-            self.insert_matched_order(buy_id, sell_id, item, max(buy_price, sell_price), min(buy_quantity, sell_quantity))
+            self.insert_matched_order(buy_id, sell_id, token, max(buy_price, sell_price), min(buy_quantity, sell_quantity))
 
-
-    def insert_matched_order(self, buy_order_id, sell_order_id, item, price, quantity):
+    def insert_matched_order(self, buy_order_id, sell_order_id, token, price, quantity):
         data = {
             "user_id_sold": sell_order_id,
             "user_id_bought": buy_order_id,
-            "item": item,
+            "item": token,
             "price": price,
             "quantity": quantity
         }

@@ -256,6 +256,20 @@ services:
       user_info_to_frontend:
       matching_engine_to_user_info:
 
+  tester:
+    container_name: tester
+    build:
+      context: ./test
+      dockerfile: Dockerfile
+    volumes:
+      - ./test:/app
+    depends_on:
+      - matching_engine_0
+      - matching_engine_1
+      - matching_engine_2
+    networks:
+      matching_engine_to_frontend:
+
 volumes:
   cassandra_data:
   user_info_db_data:

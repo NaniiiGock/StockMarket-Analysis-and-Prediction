@@ -1,6 +1,8 @@
 FROM python:3.9-slim
 
-RUN pip install kafka-python
-COPY producer.py /producer.py
+WORKDIR /app
 
-ENTRYPOINT ["python3", "/producer.py"]
+RUN pip install kafka-python
+COPY . /app
+
+ENTRYPOINT ["python3", "producer.py"]
