@@ -82,19 +82,11 @@
         }
 
         function updateChart(chart, data) {
-            const maxDataPoints = 40;
             
             chart.data.labels = data.labels;
             chart.data.datasets.forEach((dataset) => {
                 dataset.data = data.values;
             });
-            if (chart.data.labels.length > maxDataPoints) {
-                
-                chart.data.labels = chart.data.labels.slice(-maxDataPoints);
-                chart.data.datasets.forEach((dataset) => {
-                    dataset.data = dataset.data.slice(-maxDataPoints);
-                });
-            }
             chart.update();
         }
 
