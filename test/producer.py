@@ -2,7 +2,7 @@ from kafka import KafkaProducer
 import json
 import time
 
-producer = KafkaProducer(bootstrap_servers='kafka:6003')
+producer = KafkaProducer(bootstrap_servers='matching_engine_kafka:9092')
 
 orders = []
 orders.append({'id': '1', 'type': 'buy', 'price': 100, 'token': 'BTC', 'quantity': 10})

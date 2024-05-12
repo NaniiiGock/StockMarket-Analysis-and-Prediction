@@ -3,94 +3,65 @@ import json
 import redis
 import threading
 import os
-from sqlalchemy import create_engine
-import requests
-import json
+import logging
+import sys
 
 
-db_name = 'database'
-db_user = 'username'
-db_pass = 'secret'
-db_host = 'db'
-db_port = '6432'
+# Set up logging to stdout
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 class TradeMatchingSystem:
     def __init__(self):
-        self.logging_url = "http://127.0.0.1:2011/add_transaction"
-
-        print("Connecting to Kafka and Redis...")
+        logging.info("Connecting to Kafka and Redis...")
         # Connect to Redis
         redis_node = os.getenv('REDIS_NODE', 'localhost')
-        self.redis_client = redis.StrictRedis(host=redis_node, port=6379)
+        redis_port = int(os.getenv('REDIS_PORT', '6379'))
+        self.redis_client = redis.RedisCluster(host=redis_node, port=redis_port)
+        # self.redis_client = redis.RedisCluster(startup_nodes=startup_nodes, decode_responses=True)
         self.redis_client.flushdb()
 
-        # Initialize your PostgreSQL connection
-        db_string = 'postgresql://{}:{}@{}:{}/{}'.format(db_user, db_pass, db_host, db_port, db_name)
-        self.db = create_engine(db_string)
-
         # Connect to Kafka
-        self.consumer = KafkaConsumer('orders', bootstrap_servers='localhost:6003')
-        # auto_offset_reset='earliest', group_id='my-group'
+        self.consumer = KafkaConsumer('orders', bootstrap_servers='matching_engine_kafka:9092', group_id='my-group')
+        # auto_offset_reset='earliest',
 
-        self.matching_threads = {}  # Dictionary to store matching threads for each item
+        self.matching_threads = {}  # Dictionary to store matching threads for each token
 
-        print("Engine is Connected")
-
-
-    def insert_matched_order(self, buy_order_id, sell_order_id, item, price, quantity):
-        data = {
-            "user_id_sold": sell_order_id,
-            "user_id_bought": buy_order_id,
-            "item": item,
-            "price": price,
-            "quantity": quantity
-        }
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = requests.post(self.logging_url, headers=headers, data=json.dumps(data))
-
-        if response.status_code == 200:
-            print("Transaction added successfully.")
-        else:
-            print("Failed to add transaction. Status code:", response.status_code)
-
-
+        logging.info("Engine is Connected")
 
     def start(self):
         # Consume orders from Kafka
-        print("Starting Kafka consumer")
+        logging.info("Starting Kafka consumer")
         for msg in self.consumer:
             order = json.loads(msg.value.decode('utf-8'))
-            print("Order:", order)
+            logging.info(f'Order: {order}')
             self.place_order(order)
-            self.start_matching_for_item(order['item'])
+            self.start_matching_for_token(order['token'])
 
     def place_order(self, order):
         # Store the order in Redis sorted sets based on price for each token and type
-        item_key = f"{order['token']}_{order['type']}_orders"
-        self.redis_client.zadd(item_key, {json.dumps(order): order['price']})
+        order_key = f"{order['token']}_{order['type']}_orders"
+        self.redis_client.zadd(order_key, {json.dumps(order): order['price']})
 
-    def start_matching_for_item(self, item):
-        if item not in self.matching_threads:
-            matching_thread = threading.Thread(target=self.match_orders, args=(item,))
+    def start_matching_for_token(self, token):
+        if token not in self.matching_threads:
+            matching_thread = threading.Thread(target=self.match_orders, args=(token,))
             matching_thread.daemon = True
             matching_thread.start()
-            self.matching_threads[item] = matching_thread
+            self.matching_threads[token] = matching_thread
 
-    def match_orders(self, item):
+    def match_orders(self, token):
         while True:
-            buy_orders_key = f"{item}_buy_orders"
-            sell_orders_key = f"{item}_sell_orders"
+            buy_orders_key = f"{token}_buy_orders"
+            sell_orders_key = f"{token}_sell_orders"
 
-            # Fetch the best buy and sell orders for the specified item
+            # Fetch the best buy and sell orders for the specified token
             best_buy_order = self.redis_client.zrange(buy_orders_key, 0, 0, withscores=True)
             best_sell_order = self.redis_client.zrange(sell_orders_key, 0, 0, withscores=True)
 
             # If there are no buy or sell orders, delete thread and return
             if not best_buy_order or not best_sell_order:
-                del self.matching_threads[item]
+                del self.matching_threads[token]
                 return
 
             # Extract order details
@@ -106,7 +77,7 @@ class TradeMatchingSystem:
 
             # Algorithm
             if buy_price < sell_price:
-                del self.matching_threads[item]
+                del self.matching_threads[token]
                 return
 
             # Remove matched orders from Redis
@@ -120,7 +91,7 @@ class TradeMatchingSystem:
                     "price": buy_price,
                     "quantity": new_buy_quantity,
                     "id": buy_id,
-                    "token": item,
+                    "token": token,
                     "type": "buy"
                 })
                 self.place_order(updated_buy_order)
@@ -132,15 +103,13 @@ class TradeMatchingSystem:
                     "price": sell_price,
                     "quantity": new_sell_quantity,
                     "id": sell_id,
-                    "token": item,
+                    "token": token,
                     "type": "sell"
                 })
                 self.place_order(updated_sell_order)
 
-            print(f"Matched order for {item}: Buy Order ID {buy_id} at {buy_price} USD with quantity {buy_quantity}"
-                  f" matched with Sell Order ID {sell_id} at {sell_price} USD with quantity {sell_quantity}")
-
-            self.insert_matched_order(buy_id, sell_id, item, max(buy_price, sell_price), min(buy_quantity, sell_quantity))
+            logging.info(f"Matched order for {token}: Buy Order ID {buy_id} at {buy_price} USD with quantity {buy_quantity}"
+                         f" matched with Sell Order ID {sell_id} at {sell_price} USD with quantity {sell_quantity}")
 
 
 trade_matching_system = TradeMatchingSystem()
