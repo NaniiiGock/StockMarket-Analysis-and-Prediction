@@ -1,3 +1,3 @@
-docker build -f Producer.Dockerfile -t producer .
+docker build -f Dockerfile -t producer .
 
-docker run --network my-network --rm producer
+docker run --network stockmarket-analysis-and-prediction_default --rm producer

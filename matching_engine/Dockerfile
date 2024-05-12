@@ -6,8 +6,6 @@ WORKDIR /app
 
 RUN pip install kafka-python
 RUN pip install redis
-RUN pip install sqlalchemy
-RUN pip install psycopg2-binary
 COPY . /app
 
 ENTRYPOINT ["python3", "engine.py"]

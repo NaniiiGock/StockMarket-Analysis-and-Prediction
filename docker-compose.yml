@@ -1,25 +1,96 @@
 services:
-  zookeeper:
+  matching_engine_zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper
     environment:
-      ZOOKEEPER_CLIENT_PORT: 6181
+      ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  kafka:
+  matching_engine_kafka:
     image: confluentinc/cp-kafka:latest
     container_name: kafka
     depends_on:
-      - zookeeper
+      - matching_engine_zookeeper
     environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:6181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:6003
+      KAFKA_ZOOKEEPER_CONNECT: matching_engine_zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://matching_engine_kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    ports:
-      - "6003:6003"
     volumes:
       - ./matching_engine_kafka/start-kafka.sh:/usr/local/bin/start-kafka.sh
     command: ["bash", "/usr/local/bin/start-kafka.sh"]
+
+  matching_engine_redis_0:
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9079:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+
+  matching_engine_redis_1:
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9080:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+
+  matching_engine_redis_2:
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9081:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+
+  matching_engine_redis_3:
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9082:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+
+  matching_engine_redis_4:
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9083:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+
+  matching_engine_redis_5:
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9084:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+
+  matching_engine_redis_cluster:
+    image: redis:6.0-alpine
+    command: sh /usr/local/etc/redis/redis-cluster-create.sh
+    depends_on:
+      - matching_engine_redis_0
+      - matching_engine_redis_1
+      - matching_engine_redis_2
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+
+  matching_engine_0:
+    build:
+      context: ./matching_engine
+      dockerfile: Dockerfile
+    volumes:
+      - ./matching_engine:/app
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_NODE_0=matching_engine_redis_0
+      - REDIS_NODE_1=matching_engine_redis_1
+      - REDIS_NODE_2=matching_engine_redis_2
+    depends_on:
+      - matching_engine_redis_cluster
+      - matching_engine_kafka
 
   matching_engine_1:
     build:
@@ -29,54 +100,24 @@ services:
       - ./matching_engine:/app
     environment:
       - REDIS_PORT=6379
-      - REDIS_NODE=redis1
+      - REDIS_NODE_0=matching_engine_redis_0
+      - REDIS_NODE_1=matching_engine_redis_1
+      - REDIS_NODE_2=matching_engine_redis_2
     depends_on:
-      - redis1
-      - kafka
-      - postgres
-#
-#  matching_engine_2:
-#    build:
-#      context: ./matching_engine
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ./matching_engine:/app
-#    environment:
-#      - REDIS_PORT=6380
-#      - REDIS_NODE=redis2
-#    depends_on:
-#      - redis2
-#      - kafka
-#
-#  matching_engine_3:
-#    build:
-#      context: ./matching_engine
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ./matching_engine:/app
-#    environment:
-#      - REDIS_PORT=6381
-#      - REDIS_NODE=redis3
-#    depends_on:
-#      - redis3
-#      - kafka
+      - matching_engine_redis_cluster
+      - matching_engine_kafka
 
-  redis1:
-    image: redis
-    ports:
-      - 6379:6381
-#
-#  redis2:
-#    image: redis
-#    ports:
-#      - 6380:6381
-#
-#  redis3:
-#    image: redis
-#    ports:
-#      - 6381:6381
-
-  postgres:
-    build: ./matching_engine_postgres/
-    ports:
-      - "6432:6432"
+  matching_engine_2:
+    build:
+      context: ./matching_engine
+      dockerfile: Dockerfile
+    volumes:
+      - ./matching_engine:/app
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_NODE_0=matching_engine_redis_0
+      - REDIS_NODE_1=matching_engine_redis_1
+      - REDIS_NODE_2=matching_engine_redis_2
+    depends_on:
+      - matching_engine_redis_cluster
+      - matching_engine_kafka
