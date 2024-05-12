@@ -5,6 +5,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - stock_api_net
 
   stock_api_kafka:
     container_name: stock_api_kafka
@@ -18,6 +20,8 @@ services:
     volumes:
       - ./stock_api_kafka/start-kafka.sh:/usr/local/bin/start-kafka.sh
     command: ["bash", "/usr/local/bin/start-kafka.sh"]
+    networks:
+      - stock_api_net
 
   stock_api:
     container_name: stock_api
@@ -28,6 +32,8 @@ services:
       - "3000:3000"
     volumes:
       - ./stock_api:/app
+    networks:
+      - stock_api_net
 
   stock_api_cassandra:
     container_name: stock_api_cassandra
@@ -36,6 +42,8 @@ services:
       dockerfile: Dockerfile
     volumes:
       - cassandra_data:/var/lib/cassandra
+    networks:
+      - stock_api_net
 
   frontend:
     container_name: frontend
@@ -46,30 +54,36 @@ services:
       - "8080:8080"
     volumes:
       - ./frontend:/app
+    networks:
+      - stock_api_net
+      - user_info_net
+      - matching_engine_net
 
-
-# services:
-#  zookeeper:
+#  matching_engine_zookeeper:
 #    image: confluentinc/cp-zookeeper:latest
-#    container_name: zookeeper
+#    container_name: matching_engine_zookeeper
 #    environment:
 #      ZOOKEEPER_CLIENT_PORT: 6181
 #      ZOOKEEPER_TICK_TIME: 2000
+#    networks:
+#      - matching_engine_net
 #
-#  kafka:
+#  matching_engine_kafka:
 #    image: confluentinc/cp-kafka:latest
-#    container_name: kafka
+#    container_name: matching_engine_kafka
 #    depends_on:
-#      - zookeeper
+#      - matching_engine_zookeeper
 #    environment:
-#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:6181
-#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:6003
+#      KAFKA_ZOOKEEPER_CONNECT: matching_engine_zookeeper:6181
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://matching_engine_kafka:6003
 #      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 #    ports:
 #      - "6003:6003"
 #    volumes:
 #      - ./matching_engine_kafka/start-kafka.sh:/usr/local/bin/start-kafka.sh
 #    command: ["bash", "/usr/local/bin/start-kafka.sh"]
+#    networks:
+#      - matching_engine_net
 #
 #  matching_engine_1:
 #    build:
@@ -79,88 +93,98 @@ services:
 #      - ./matching_engine:/app
 #    environment:
 #      - REDIS_PORT=6379
-#      - REDIS_NODE=redis1
+#      - REDIS_NODE=matching_engine_redis1
 #    depends_on:
-#      - redis1
-#      - kafka
-#      - postgres
-##
-##  matching_engine_2:
-##    build:
-##      context: ./matching_engine
-##      dockerfile: Dockerfile
-##    volumes:
-##      - ./matching_engine:/app
-##    environment:
-##      - REDIS_PORT=6380
-##      - REDIS_NODE=redis2
-##    depends_on:
-##      - redis2
-##      - kafka
-##
-##  matching_engine_3:
-##    build:
-##      context: ./matching_engine
-##      dockerfile: Dockerfile
-##    volumes:
-##      - ./matching_engine:/app
-##    environment:
-##      - REDIS_PORT=6381
-##      - REDIS_NODE=redis3
-##    depends_on:
-##      - redis3
-##      - kafka
+#      - matching_engine_redis1
+#      - matching_engine_kafka
+#      - matching_engine_postgres
+#    networks:
+#      - matching_engine_net
 #
-#  redis1:
+#  matching_engine_2:
+#    build:
+#      context: ./matching_engine
+#      dockerfile: Dockerfile
+#    volumes:
+#      - ./matching_engine:/app
+#    environment:
+#      - REDIS_PORT=6380
+#      - REDIS_NODE=matching_engine_redis2
+#    depends_on:
+#      - matching_engine_redis2
+#      - kafka
+#    networks:
+#      - matching_engine_net
+#
+#  matching_engine_3:
+#    build:
+#      context: ./matching_engine
+#      dockerfile: Dockerfile
+#    volumes:
+#      - ./matching_engine:/app
+#    environment:
+#      - REDIS_PORT=6381
+#      - REDIS_NODE=matching_engine_redis3
+#    depends_on:
+#      - matching_engine_redis3
+#      - kafka
+#
+#  matching_engine_redis1:
 #    image: redis
 #    ports:
 #      - 6379:6381
-##
-##  redis2:
-##    image: redis
-##    ports:
-##      - 6380:6381
-##
-##  redis3:
-##    image: redis
-##    ports:
-##      - 6381:6381
 #
-#  postgres:
+#  matching_engine_redis2:
+#    image: redis
+#    ports:
+#      - 6380:6381
+#
+#  matching_engine_redis3:
+#    image: redis
+#    ports:
+#      - 6381:6381
+#
+#  matching_engine_postgres:
 #    build: ./matching_engine_postgres/
 #    ports:
 #      - "6432:6432"
-
-  web_db:
-    container_name: web_db
-    image: postgres:alpine
-    environment:
-      POSTGRES_DB: psqldb
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    ports:
-      - "2002:5432"
-    volumes:
-      - db-data:/var/lib/postgresql/data
-      - ./user-info-db/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
-
-  web:
-    container_name: user-backend
-    build:
-      context: user-info
-      dockerfile: Dockerfile
-    ports:
-      - "2010:5000"
-      - "2011:5001"
-    depends_on:
-      - web_db
-    environment:
-      - DATABASE_URL=postgresql://user:password@web_db/psqldb
-    volumes:
-      - ./user-info/app:/app
-
-
+#
+#  user_info_db:
+#    container_name: user_info_db
+#    image: postgres:alpine
+#    environment:
+#      POSTGRES_DB: psqldb
+#      POSTGRES_USER: user
+#      POSTGRES_PASSWORD: password
+#    ports:
+#      - "2002:5432"
+#    volumes:
+#      - user_info_db_data:/var/lib/postgresql/data
+#      - ./user_info_db/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
+#
+#  user_info:
+#    container_name: user_info
+#    build:
+#      context: user_info
+#      dockerfile: Dockerfile
+#    ports:
+#      - "2010:5000"
+#      - "2011:5001"
+#    depends_on:
+#      - user_info_db
+#    environment:
+#      - DATABASE_URL=postgresql://user:password@user_info_db/psqldb
+#    volumes:
+#      - ./user_info/app:/app
 
 volumes:
   cassandra_data:
-  db-data:
+  user_info_db_data:
+
+networks:
+  stock_api_net:
+    driver: bridge
+  user_info_net:
+    driver: bridge
+  matching_engine_net:
+    driver: bridge
