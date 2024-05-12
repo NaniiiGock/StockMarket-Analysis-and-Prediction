@@ -1,14 +1,14 @@
 services:
   matching_engine_zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
+    container_name: matching_engine_zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
   matching_engine_kafka:
     image: confluentinc/cp-kafka:latest
-    container_name: kafka
+    container_name: matching_engine_kafka
     depends_on:
       - matching_engine_zookeeper
     environment:
@@ -20,11 +20,12 @@ services:
     command: ["bash", "/usr/local/bin/start-kafka.sh"]
     healthcheck:
       test: [ "CMD", "bash", "-c", "kafka-topics --list --bootstrap-server 0.0.0.0:9092 | grep -qw orders" ]
-      interval: 30s
+      interval: 15s
       timeout: 10s
       retries: 10
 
   matching_engine_redis_0:
+    container_name: matching_engine_redis_0
     image: redis:6.0-alpine
     command: redis-server /usr/local/etc/redis/redis.conf
     ports:
@@ -33,6 +34,7 @@ services:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
 
   matching_engine_redis_1:
+    container_name: matching_engine_redis_1
     image: redis:6.0-alpine
     command: redis-server /usr/local/etc/redis/redis.conf
     ports:
@@ -41,6 +43,7 @@ services:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
 
   matching_engine_redis_2:
+    container_name: matching_engine_redis_2
     image: redis:6.0-alpine
     command: redis-server /usr/local/etc/redis/redis.conf
     ports:
@@ -49,6 +52,7 @@ services:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
 
   matching_engine_redis_3:
+    container_name: matching_engine_redis_3
     image: redis:6.0-alpine
     command: redis-server /usr/local/etc/redis/redis.conf
     ports:
@@ -57,6 +61,7 @@ services:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
 
   matching_engine_redis_4:
+    container_name: matching_engine_redis_4
     image: redis:6.0-alpine
     command: redis-server /usr/local/etc/redis/redis.conf
     ports:
@@ -65,6 +70,7 @@ services:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
 
   matching_engine_redis_5:
+    container_name: matching_engine_redis_5
     image: redis:6.0-alpine
     command: redis-server /usr/local/etc/redis/redis.conf
     ports:
@@ -73,19 +79,18 @@ services:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
 
   matching_engine_redis_cluster:
+    container_name: matching_engine_redis_cluster
     image: redis:6.0-alpine
     command: sh /usr/local/etc/redis/redis-cluster-create.sh
     depends_on:
       - matching_engine_redis_0
       - matching_engine_redis_1
       - matching_engine_redis_2
-      - matching_engine_redis_3
-      - matching_engine_redis_4
-      - matching_engine_redis_5
     volumes:
       - ${PWD}/matching_engine_redis:/usr/local/etc/redis
 
   matching_engine_0:
+    container_name: matching_engine_0
     build:
       context: ./matching_engine
       dockerfile: Dockerfile
@@ -99,6 +104,7 @@ services:
         condition: service_healthy
 
   matching_engine_1:
+    container_name: matching_engine_1
     build:
       context: ./matching_engine
       dockerfile: Dockerfile
@@ -112,6 +118,7 @@ services:
         condition: service_healthy
 
   matching_engine_2:
+    container_name: matching_engine_2
     build:
       context: ./matching_engine
       dockerfile: Dockerfile

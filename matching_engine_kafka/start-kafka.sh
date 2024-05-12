@@ -5,7 +5,7 @@
 
 # Wait for Zookeeper to be ready
 echo "Waiting for Zookeeper to be ready..."
-while ! nc -z zookeeper 2181; do
+while ! nc -z matching_engine_zookeeper 2181; do
   sleep 1
 done
 echo "Zookeeper is ready."
