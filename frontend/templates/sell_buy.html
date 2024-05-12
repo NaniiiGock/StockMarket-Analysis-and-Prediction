@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Currency Transaction</title>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('data_selection') }}">General Info</a>
+        <a href="{{ url_for('plot_list') }}">My Subscriptions</a>
+        <a href="{{ url_for('history_of_trades') }}">My History</a> 
+    </div>
+
+    <h1>Currency Transaction</h1>
+    <form method="post">
+        <label for="currency">Choose a currency:</label>
+        <select name="currency" id="currency">
+            {% for currency, rate in currencies.items() %}
+            <option value="{{ currency }}">{{ currency }} - {{ rate }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" name="amount" placeholder="Amount" required>
+        <input type="number" name="user_price" placeholder="Your Price" step="0.001" required>
+        <button type="submit" name="action" value="buy">Buy</button>
+        <button type="submit" name="action" value="sell">Sell</button>
+    </form>
+    <p>{{ message }}</p>
+</body>
+</html>

@@ -232,11 +232,11 @@ services:
       - ./user_info_db/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
     networks:
       user_info_to_frontend:
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
-      interval: 10s
-      timeout: 60s
-      retries: 5
+    # healthcheck:
+      # test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
+      # interval: 10s
+      # timeout: 60s
+      # retries: 5
 
   user_info:
     container_name: user_info

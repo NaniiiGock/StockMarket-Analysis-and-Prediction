@@ -6,12 +6,15 @@ from aiokafka import AIOKafkaConsumer
 import json
 from flask import Flask, render_template, request, jsonify
 import requests
+from kafka import KafkaProducer
 import time
 
 executor = ThreadPoolExecutor(1)
 
 app = Flask(__name__)
 users = {}
+
+user_id = None
 
 data_store = {
     'HNT': [],
@@ -154,9 +157,17 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        users[username] = password
-        #### here I pass data to servvice with logging to chech if user is in database####
-        return redirect(url_for('data_selection'))
+        
+        response = requests.post('http://127.0.0.1:2010/login', json={'username': username, 'password': password})
+        
+        if response.status_code == 200:
+            data = response.json()
+            user_id = data.get('user_id')
+            print("Successfully logged in with user_id: ", user_id)
+            return redirect(url_for('data_selection'))
+        else:
+            return render_template('login.html', error="Login failed")
+        
     return render_template('login.html')
 
 @app.route('/history-of-trades')
@@ -256,6 +267,51 @@ def data_for_W():
     # values = [list(data.values())[0] for data in data_store_2['W']]
     # return jsonify({'labels': labels, 'values': values})
     return jsonify({'labels': list(range(len(data_store['W']))), 'values': data_store['W']})
+
+
+# =================================================================================================
+#                           TRANACTIONS
+# =================================================================================================
+
+
+
+currency_data = {
+    # get current data from Nazar
+    'HNT': 1,
+    'SOL': 2,
+    'soLINK': 3,
+    'TBTC': 4,
+    'Bonk': 5,
+    'W': 6,
+}
+@app.route('/sell_buy', methods=['GET', 'POST'])
+def index():
+    message = ""
+    if request.method == 'POST':
+        try:
+            action = request.form.get('action', type=str)
+            amount = request.form.get('amount', type=float)
+            user_price = request.form.get('user_price', type=float)
+            currency = request.form.get('currency', type=str)
+
+            producer = KafkaProducer(bootstrap_servers='matching_engine_kafka:9092')
+            order = {'id': user_id, 'type': action, 'price': user_price, 'token': currency, 'quantity': amount}
+            producer.send('orders', value=json.dumps(order).encode('utf-8'))
+            producer.flush()
+            
+            if action == 'buy':
+                total_cost = amount * user_price
+                message = f"You sent a request to buy {amount} {currency} for {total_cost} USD.\nCheck your transaction history."
+            elif action == 'sell':
+                total_revenue = amount * user_price
+                message = f"You sent a request to sell {amount} {currency} for {total_revenue} USD.\nCheck your transaction history."
+        except Exception as e:
+            message = f"Error: {str(e)}"  
+    
+    
+    return render_template('sell_buy.html', currencies=currency_data, message=message)
+
+
 
 ####################################################################################################
 #                           START THE APP
