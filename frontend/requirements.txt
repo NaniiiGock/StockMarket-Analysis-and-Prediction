@@ -3,3 +3,5 @@ gunicorn
 aiokafka
 asyncio
 httpx
+matplotlib
+requests
