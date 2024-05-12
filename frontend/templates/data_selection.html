@@ -3,30 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historical Data</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>Data Selection</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
-
 <body>
+
     <div class="header">
         <a href="{{ url_for('data_selection') }}">General Info</a>
         <a href="{{ url_for('plot_list') }}">My Subscriptions</a>
-        <a href="{{ url_for('history_of_trades') }}">My History</a>
+        <a href="{{ url_for('history_of_trades') }}">My History</a> 
     </div>
-    
-    <div class="data-container">
-        <div class="date-picker">
-            <input type="date">
-            <input type="date">
-        </div>
-        <div class="checklist">
-            <input type="checkbox" id="item1"><label for="item1">Item 1</label><br>
-            <input type="checkbox" id="item2"><label for="item2">Item 2</label><br>
-        </div>
-        <div class="plot">
-            <img src="{{ url_for('static', filename='images/picture.png') }}" alt="Plot">
-        </div>
+
+    <blockquote>
+        <p>Here you can select the currency and time interval to see the dynamic updates of the chart.</p>  
+    </blockquote>
+
+    <h1>Chart</h1>
+
+    <form id="dataForm">
+        <label for="currencySelect">Choose a currency:</label>
+        <select name="currencies" multiple>
+            <option value="HNT">HNT</option>
+            <option value="SOL">SOL</option>
+            <option value="soLINK">soLINK</option>
+            <option value="TBTC">TBTC</option>
+            <option value="Bonk">Bonk</option>
+            <option value="W">W</option>
+        </select>
+
+        <label for="startDateTime">Start Date and Time:</label>
+        <input type="datetime-local" name="startDateTime" required>
+
+        <label for="endDateTime">End Date and Time:</label>
+        <input type="datetime-local" name="endDateTime" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div>
+        <h3>Chart for Selected Currency</h3>
+        <canvas id="myChart"></canvas>
     </div>
+
+    <div id="submittedData">
+        <h3>Submitted Data</h3>
+        <p id="selectedCurrencies"></p>
+        <p id="selectedDates"></p>
+    </div>
+
+    <script>
+        document.getElementById('dataForm').onsubmit = function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+
+
+        const currencies = formData.getAll('currencies').join(', ');
+        const startDateTime = formData.get('startDateTime');
+        const endDateTime = formData.get('endDateTime');
+        
+        // Update the display with the selected data
+        document.getElementById('selectedCurrencies').textContent = `Selected Currencies: ${currencies}`;
+        document.getElementById('selectedDates').textContent = `Date Range: ${startDateTime} to ${endDateTime}`;
+
+
+            fetch('/submit', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                  const ctx = document.getElementById('myChart').getContext('2d');
+                  new Chart(ctx, {
+                      type: 'line',
+                      data: {
+                          labels: data.labels,
+                          datasets: [{
+                              label: 'Currency Values',
+                              data: data.values,
+                              backgroundColor: [
+                                  'rgba(255, 99, 132, 0.2)',
+                                  'rgba(54, 162, 235, 0.2)',
+                                  'rgba(255, 206, 86, 0.2)',
+                                  'rgba(75, 192, 192, 0.2)',
+                                  'rgba(153, 102, 255, 0.2)',
+                                  'rgba(255, 159, 64, 0.2)'
+                              ],
+                              borderColor: [
+                                  'rgba(255, 99, 132, 1)',
+                                  'rgba(54, 162, 235, 1)',
+                                  'rgba(255, 206, 86, 1)',
+                                  'rgba(75, 192, 192, 1)',
+                                  'rgba(153, 102, 255, 1)',
+                                  'rgba(255, 159, 64, 1)'
+                              ],
+                              borderWidth: 1
+                          }]
+                      },
+                      options: {
+                          scales: {
+                              y: {
+                                  beginAtZero: true
+                              }
+                          }
+                      }
+                  });
+              });
+        };
+    </script>
+
 </body>
 </html>
