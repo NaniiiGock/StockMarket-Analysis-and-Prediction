@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My History of Trades</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+
+</head>
+<body>
+
+    <h1>My History of Trades</h1>
+
+    <table>
+        <tr>
+            <th>Action</th>
+            <th>Item</th>
+            <th>Price</th>
+            <th>Quantity</th>
+        </tr>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.type }}</td>
+            <td>{{ transaction.token }}</td>
+            <td>${{ transaction.price }}</td>
+            <td>{{ transaction.quantity }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+</html>

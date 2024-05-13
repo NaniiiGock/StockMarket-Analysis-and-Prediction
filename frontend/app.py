@@ -7,6 +7,7 @@ import json
 from flask import Flask, render_template, request, jsonify
 import requests
 from kafka import KafkaProducer
+import json
 import time
 
 executor = ThreadPoolExecutor(1)
@@ -186,10 +187,6 @@ def index_login_register():
     return render_template('login.html')
 
 
-@app.route('/history-of-trades')
-def history_of_trades():
-    return render_template('history_of_trades.html')
-
 # =================================================================================================
 #                           Historical data
 # =================================================================================================
@@ -301,7 +298,7 @@ currency_data = {
     'W': 6,
 }
 @app.route('/sell_buy', methods=['GET', 'POST'])
-def index():
+def sell_buy():
     message = ""
     if request.method == 'POST':
         try:
@@ -309,12 +306,12 @@ def index():
             amount = request.form.get('amount', type=float)
             user_price = request.form.get('user_price', type=float)
             currency = request.form.get('currency', type=str)
-
+            
             producer = KafkaProducer(bootstrap_servers='matching_engine_kafka:9092')
             order = {'id': user_id, 'type': action, 'price': user_price, 'token': currency, 'quantity': amount}
             producer.send('orders', value=json.dumps(order).encode('utf-8'))
             producer.flush()
-
+            
             if action == 'buy':
                 total_cost = amount * user_price
                 message = f"You sent a request to buy {amount} {currency} for {total_cost} USD.\nCheck your transaction history."
@@ -328,9 +325,24 @@ def index():
     return render_template('sell_buy.html', currencies=currency_data, message=message)
 
 
+# =================================================================================================
+#                           MY HISTORY
+# =================================================================================================
+
+@app.route('/history_of_trades')
+def history_of_trades():
+    #transaction_history = requests.get('Anna's SERVICE')
+    transaction_history = {
+        'transactions': [
+            {'type': 'buy', 'token': 'HNT', 'quantity': 10, 'price': 10, 'total': 100},\
+            {'type': 'sell', 'token': 'SOL', 'quantity': 5, 'price': 20, 'total': 100},\
+            {'type': 'buy', 'token': 'soLINK', 'quantity': 10, 'price': 10, 'total': 100}]}
+
+    return render_template('history_of_trades.html', transactions=transaction_history['transactions'])
+
 
 ####################################################################################################
-#                           START THE APP
+#                                           START THE APP
 ####################################################################################################
 
 if __name__ == '__main__':
