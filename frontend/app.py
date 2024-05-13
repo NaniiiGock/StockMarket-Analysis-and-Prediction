@@ -340,14 +340,35 @@ def sell_buy():
 
 @app.route('/history_of_trades')
 def history_of_trades():
-    #transaction_history = requests.get('Anna's SERVICE')
-    transaction_history = {
-        'transactions': [
-            {'type': 'buy', 'token': 'HNT', 'quantity': 10, 'price': 10, 'total': 100},\
-            {'type': 'sell', 'token': 'SOL', 'quantity': 5, 'price': 20, 'total': 100},\
-            {'type': 'buy', 'token': 'soLINK', 'quantity': 10, 'price': 10, 'total': 100}]}
+    user_id = session.get('user_id')
+    if not user_id:
+        return "User not logged in", 401  # Handling case where no user is logged in
 
-    return render_template('history_of_trades.html', transactions=transaction_history['transactions'])
+    url = f"http://user_info:5001/user_transactions/{user_id}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raises an HTTPError for bad responses
+        transaction_data = response.json()
+        
+        # Assuming the response structure matches what you've shown in the curl example
+        transactions = []
+        for txn in transaction_data['transactions']:
+            transactions.append({
+                'type': 'buy' if txn['action'].lower() == 'bought' else 'sell',
+                'token': txn['item'],
+                'quantity': txn['quantity'],
+                'price': txn['price'],
+                'total': txn['price'] * txn['quantity']
+            })
+        
+        return render_template('history_of_trades.html', transactions=transactions)
+    except requests.RequestException as e:
+        app.logger.error(f"Error fetching transactions: {str(e)}")
+        return f"Error fetching transactions: {str(e)}", 500
+    except KeyError:
+        app.logger.error(f"Error parsing transaction data")
+        return "Error processing transaction data", 500
+
 
 
 ####################################################################################################
