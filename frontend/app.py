@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 import asyncio
 import httpx
 from concurrent.futures import ThreadPoolExecutor
@@ -9,13 +9,13 @@ import requests
 from kafka import KafkaProducer
 import json
 import time
+import os
 
 executor = ThreadPoolExecutor(1)
 
 app = Flask(__name__)
-users = {}
+app.secret_key = os.urandom(24)
 
-user_id = None
 
 data_store = {
     'HNT': [],
@@ -153,7 +153,6 @@ def start_async_tasks():
 #                           ROUTES
 #================================================================================================
 
-
 @app.route('/login', methods=['POST'])
 def login():
     username = request.form['username']
@@ -162,8 +161,8 @@ def login():
     
     if response.status_code == 200:
         data = response.json()
-        user_id = data.get('user_id')
-        print("Successfully logged in with user_id:", user_id)
+        session['user_id'] = data.get('user_id')
+        app.logger.info(f"Successfully logged in with user_id: {session['user_id']}")
         return redirect(url_for('data_selection'))
     else:
         return render_template('login.html', error="Login failed")
@@ -176,11 +175,16 @@ def register():
     response = requests.post('http://user_info:5000/register', json={'username': username, 'email': email, 'password': password})
     
     if response.status_code == 201:
-        user_id = response.json().get('user_id')
-        print("Successfully registered user", username, "with user_id:", user_id)
+        data = response.json()
+        session['user_id'] = data.get('user_id')
         return redirect(url_for('data_selection'))
     else:
         return render_template('login.html', error="Registration failed")
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)  # remove user_id from session
+    return redirect(url_for('login'))
 
 @app.route('/')
 def index_login_register():
@@ -309,11 +313,13 @@ def sell_buy():
             amount = request.form.get('amount', type=float)
             user_price = request.form.get('user_price', type=float)
             currency = request.form.get('currency', type=str)
+            user_id = session.get('user_id', None)
             
             producer = KafkaProducer(bootstrap_servers='matching_engine_kafka:9092')
             order = {'id': user_id, 'type': action, 'price': user_price, 'token': currency, 'quantity': amount}
             producer.send('orders', value=json.dumps(order).encode('utf-8'))
             producer.flush()
+            app.logger.info(f"Order sent: {order}")
             
             if action == 'buy':
                 total_cost = amount * user_price
@@ -350,5 +356,5 @@ def history_of_trades():
 
 if __name__ == '__main__':
     executor.submit(start_async_tasks)
-    app.run(host='0.0.0.0', port=8080)
+    app.run(debug=True, host='0.0.0.0', port=8080)
 
