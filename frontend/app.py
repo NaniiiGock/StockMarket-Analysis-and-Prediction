@@ -132,7 +132,7 @@ async def consume():
     await consumer.start()
     try:
         async for message in consumer:
-            print(f"Received message: {message} on partition {message.partition}")
+            # print(f"Received message: {message} on partition {message.partition}")
             if message.partition in partition_to_plot:
                 data_store[partition_to_plot[message.partition]].append(message.value['value'])
                 # data_store_times[partition_to_plot[message.partition]].append(message.value['datetime'])
@@ -152,23 +152,39 @@ def start_async_tasks():
 #                           ROUTES
 #================================================================================================
 
-@app.route('/', methods=['GET', 'POST'])
+
+@app.route('/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        
-        response = requests.post('http://127.0.0.1:2010/login', json={'username': username, 'password': password})
-        
-        if response.status_code == 200:
-            data = response.json()
-            user_id = data.get('user_id')
-            print("Successfully logged in with user_id: ", user_id)
-            return redirect(url_for('data_selection'))
-        else:
-            return render_template('login.html', error="Login failed")
-        
+    username = request.form['username']
+    password = request.form['password']
+    response = requests.post('http://user_info:5000/login', json={'username': username, 'password': password})
+    
+    if response.status_code == 200:
+        data = response.json()
+        user_id = data.get('user_id')
+        print("Successfully logged in with user_id:", user_id)
+        return redirect(url_for('data_selection'))
+    else:
+        return render_template('login.html', error="Login failed")
+
+@app.route('/register', methods=['POST'])
+def register():
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    response = requests.post('http://user_info:5000/register', json={'username': username, 'email': email, 'password': password})
+    
+    if response.status_code == 201:
+        user_id = response.json().get('user_id')
+        print("Successfully registered user", username, "with user_id:", user_id)
+        return redirect(url_for('data_selection'))
+    else:
+        return render_template('login.html', error="Registration failed")
+
+@app.route('/')
+def index_login_register():
     return render_template('login.html')
+
 
 @app.route('/history-of-trades')
 def history_of_trades():
@@ -178,7 +194,7 @@ def history_of_trades():
 #                           Historical data
 # =================================================================================================
     
-@app.route('/data-selection')
+@app.route('/data_selection')
 def data_selection():
     return render_template('data_selection.html')
 
@@ -298,7 +314,7 @@ def index():
             order = {'id': user_id, 'type': action, 'price': user_price, 'token': currency, 'quantity': amount}
             producer.send('orders', value=json.dumps(order).encode('utf-8'))
             producer.flush()
-            
+
             if action == 'buy':
                 total_cost = amount * user_price
                 message = f"You sent a request to buy {amount} {currency} for {total_cost} USD.\nCheck your transaction history."

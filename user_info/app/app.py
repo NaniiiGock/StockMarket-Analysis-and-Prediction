@@ -41,7 +41,7 @@ def register():
     try:
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({"message": "User registered successfully"}), 201
+        return jsonify({"message": "User registered successfully", "user_id": new_user.id}), 201
     except exc.IntegrityError:
         return jsonify({"error": "This username or email already exists"}), 400
 

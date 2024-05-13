@@ -26,7 +26,7 @@ class TradeMatchingSystem:
 
         self.matching_threads = {}  # Dictionary to store matching threads for each token
 
-        self.logging_url = "http://user_info:2011/add_transaction"
+        self.logging_url = "http://user_info:5001/add_transaction"
 
         logging.info("Engine is Connected")
 
