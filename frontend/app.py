@@ -297,6 +297,9 @@ currency_data = {
     'Bonk': 5,
     'W': 6,
 }
+
+
+
 @app.route('/sell_buy', methods=['GET', 'POST'])
 def sell_buy():
     message = ""
