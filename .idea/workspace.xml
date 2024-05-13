@@ -9,7 +9,6 @@
   <component name="ChangeListManager">
     <list default="true" id="bb04a122-eb90-428c-a41e-927a990e27a3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/matching_engine/engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/matching_engine/engine.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

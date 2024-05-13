@@ -54,6 +54,9 @@ services:
       - "8080:8080"
     volumes:
       - ./frontend:/app
+    depends_on:
+      matching_engine_kafka:
+        condition: service_healthy
     networks:
       stock_api_to_frontend:
       user_info_to_frontend:
