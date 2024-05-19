@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historical Data</title>
+    <title>Dynamic Chart Updates</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
 <div class="header">
@@ -16,11 +17,7 @@
     <a href="{{ url_for('sell_buy') }}">Make A Transaction</a>
 </div>
 
-<blockquote>
-    <p>Here you can select the currency and time interval to see the dynamic updates of the chart.</p>
-</blockquote>
-
-<h1>Chart</h1>
+<h1>Dynamic Charts</h1>
 
 <form id="dataForm">
     <label for="currencySelect">Choose a currency:</label>
@@ -30,48 +27,31 @@
         {% endfor %}
     </select>
 
-    <label for="startDateTime">Start Date and Time:</label>
-    <input type="datetime-local" name="startDateTime" required>
-
-    <label for="endDateTime">End Date and Time:</label>
-    <input type="datetime-local" name="endDateTime" required>
-
     <button type="submit">Submit</button>
 </form>
 
-<div>
-    <h3>Chart for Selected Currency</h3>
-    <canvas id="myChart"></canvas>
+<div id="selectedCurrency" style="margin: 20px 0;">
+    <strong>Selected Currency:</strong> <span id="currencyDisplay">None</span>
 </div>
 
-<div id="submittedData">
-    <h3>Submitted Data</h3>
-    <p id="selectedCurrencies"></p>
-    <p id="selectedDates"></p>
+<div>
+    <h3>Real time chart</h3>
+    <canvas id="chart"></canvas>
 </div>
 
 <script>
-    document.getElementById('dataForm').onsubmit = function(event) {
+    document.getElementById('dataForm').onsubmit = function (event) {
         event.preventDefault();
         const formData = new FormData(event.target);
 
+        const currency = formData.get('currency').toString();
+        document.getElementById('currencyDisplay').textContent = currency;
 
-        const currency = formData.get('currency').toString();;
-        const startDateTime = formData.get('startDateTime');
-        const endDateTime = formData.get('endDateTime');
-
-        // Update the display with the selected data
-        document.getElementById('selectedCurrencies').textContent = `Selected Currencies: ${currency}`;
-        document.getElementById('selectedDates').textContent = `Date Range: ${startDateTime} to ${endDateTime}`;
-
-
-        fetch('/submit', {
-            method: 'POST',
-            body: formData
-        }).then(response => response.json())
+        fetch('/submit_realtime?token=' + currency).then(response => response.json())
             .then(data => {
-                const ctx = document.getElementById('myChart').getContext('2d');
-                new Chart(ctx, {
+                const ctx = document.getElementById('chart').getContext('2d');
+
+                window.chart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: data.labels,
@@ -105,9 +85,29 @@
                         }
                     }
                 });
+
+                setInterval(() => fetchDataAndUpdate(currency, window.chart), 2000);
             });
     };
+
+    function updateChart(chart, data) {
+        chart.data.labels = data.labels;
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data = data.values;
+        });
+        chart.update();
+    }
+
+    function fetchDataAndUpdate(token, chart) {
+        let url = new URL('/submit_realtime', window.location.origin);
+        url.searchParams.append('token', token);
+        fetch(url)
+            .then(response => response.json())
+            .then(data => updateChart(chart, data))
+            .catch(error => console.error('Error fetching data:', error));
+    }
 </script>
+
 
 </body>
 </html>

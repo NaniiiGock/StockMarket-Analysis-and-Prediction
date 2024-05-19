@@ -2,11 +2,10 @@ use std::sync::Arc;
 
 use anyhow::anyhow;
 use axum::extract::Query;
+use rdkafka::ClientConfig;
 use rdkafka::error::KafkaError;
 use rdkafka::producer::{FutureProducer, FutureRecord};
-use rdkafka::ClientConfig;
 use scylla::Session;
-use serde_json::to_string;
 use thiserror::Error;
 use tokio::time::Duration;
 
@@ -55,19 +54,18 @@ pub async fn stream_prices(kafka_node: String) -> Result<()> {
         .create()?;
 
     loop {
-        for (idx, &token) in TOKEN_LIST.iter().enumerate() {
+        for token in TOKEN_LIST {
             let price = price_of_token(Query(QueryPrice {
                 id: token.to_owned(),
                 vs_token: VS_TOKEN.to_owned(),
             }))
-            .await?;
+            .await?.0;
 
-            let message = to_string(&price.0)?;
+            let message = serde_json::to_string(&price)?;
 
             let record = FutureRecord::to("prices")
                 .payload(&message)
-                .key("")
-                .partition(idx as i32);
+                .key("");
 
             // sending to kafka
             producer
@@ -83,7 +81,7 @@ pub async fn populate_prices(session: Arc<Session>) -> Result<()> {
     loop {
         interval.tick().await;
 
-        for (_idx, &token) in TOKEN_LIST.iter().enumerate() {
+        for token in TOKEN_LIST {
             let price = price_of_token(Query(QueryPrice {
                 id: token.to_owned(),
                 vs_token: VS_TOKEN.to_owned(),

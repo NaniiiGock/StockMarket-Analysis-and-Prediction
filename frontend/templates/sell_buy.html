@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Currency Transaction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -54,12 +55,11 @@
             color: #2d662d;
         }
     </style>
-
 </head>
 <body>
     <div class="header">
         <a href="{{ url_for('data_selection') }}">General Info</a>
-        <a href="{{ url_for('plot_list') }}">Streaming</a>
+        <a href="{{ url_for('streaming') }}">Streaming</a>
         <a href="{{ url_for('history_of_trades') }}">My History</a> 
         <a href="{{ url_for('sell_buy') }}">Make A Transaction</a> 
     </div>

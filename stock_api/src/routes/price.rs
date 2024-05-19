@@ -67,13 +67,15 @@ impl IntoResponse for PriceResponse {
 pub struct Price {
     pub value: f64,
     pub datetime: DateTime<Utc>,
+    pub token: String,
 }
 
 impl Price {
-    pub fn new(value: f64) -> Price {
+    pub fn new(value: f64, token: String) -> Price {
         Price {
             value,
             datetime: chrono::offset::Utc::now(),
+            token
         }
     }
 }
@@ -101,7 +103,7 @@ pub async fn price_of_token(
         token: vs_token.clone(),
     })?;
 
-    Ok(Json(Price::new(val.price)))
+    Ok(Json(Price::new(val.price, id)))
 }
 
 pub async fn price_of_token_interval(

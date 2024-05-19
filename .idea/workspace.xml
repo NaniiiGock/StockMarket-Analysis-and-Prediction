@@ -9,7 +9,18 @@
   <component name="ChangeListManager">
     <list default="true" id="bb04a122-eb90-428c-a41e-927a990e27a3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/matching_engine/engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/matching_engine/engine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/templates/data_selection.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/templates/data_selection.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/templates/history_of_trades.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/templates/history_of_trades.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/templates/plot_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/templates/streaming.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/templates/plot_list2.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/templates/sell_buy.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/templates/sell_buy.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/stock_api/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/stock_api/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/stock_api/src/routes/price.rs" beforeDir="false" afterPath="$PROJECT_DIR$/stock_api/src/routes/price.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/stock_api/src/utils/streaming.rs" beforeDir="false" afterPath="$PROJECT_DIR$/stock_api/src/utils/streaming.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +67,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.rust.reset.selective.auto.import": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/nazar/Projects/Study/APZ/final_project",
+    "last_opened_file_path": "/Users/nazar/Projects/Study/APZ/final_project/frontend",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -65,11 +76,14 @@
     "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
     "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
     "org.rust.first.attach.projects": "true",
-    "settings.editor.selected.configurable": "language.rust.rustfmt",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/frontend" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/user-info-db" />
       <recent name="$PROJECT_DIR$/frontend" />
@@ -109,6 +123,14 @@
       <workItem from="1715512810413" duration="1330000" />
       <workItem from="1715515000619" duration="270000" />
       <workItem from="1715524946003" duration="3574000" />
+      <workItem from="1715621492296" duration="870000" />
+      <workItem from="1715625106994" duration="3703000" />
+      <workItem from="1715679731574" duration="159000" />
+      <workItem from="1715795115699" duration="11744000" />
+      <workItem from="1715855953980" duration="151000" />
+      <workItem from="1715856115391" duration="8000" />
+      <workItem from="1716052757414" duration="22266000" />
+      <workItem from="1716124858561" duration="2240000" />
     </task>
     <servers />
   </component>

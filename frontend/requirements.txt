@@ -1,8 +1,4 @@
 Flask
-gunicorn
-aiokafka
-asyncio
 httpx
-matplotlib
 requests
-kafka-python
+confluent-kafka
