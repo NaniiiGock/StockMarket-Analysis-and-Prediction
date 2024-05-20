@@ -53,10 +53,12 @@
 
                 if (window.fetchInterval != null) {
                     clearInterval(window.fetchInterval);
+                    window.fetchInterval = null;
                 }
 
                 if (window.chart instanceof Chart) {
                     window.chart.destroy();
+                    window.chart = null;
                 }
 
                 window.chart = new Chart(ctx, {
