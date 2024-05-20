@@ -2,3 +2,4 @@ Flask
 httpx
 requests
 confluent-kafka
+python-dateutil

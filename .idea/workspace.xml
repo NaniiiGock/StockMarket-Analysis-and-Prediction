@@ -9,18 +9,9 @@
   <component name="ChangeListManager">
     <list default="true" id="bb04a122-eb90-428c-a41e-927a990e27a3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/templates/data_selection.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/templates/data_selection.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/templates/history_of_trades.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/templates/history_of_trades.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/templates/plot_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/templates/streaming.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/templates/plot_list2.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/templates/sell_buy.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/templates/sell_buy.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stock_api/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/stock_api/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stock_api/src/routes/price.rs" beforeDir="false" afterPath="$PROJECT_DIR$/stock_api/src/routes/price.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stock_api/src/utils/streaming.rs" beforeDir="false" afterPath="$PROJECT_DIR$/stock_api/src/utils/streaming.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/templates/streaming.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/templates/streaming.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,7 +121,7 @@
       <workItem from="1715855953980" duration="151000" />
       <workItem from="1715856115391" duration="8000" />
       <workItem from="1716052757414" duration="22266000" />
-      <workItem from="1716124858561" duration="2240000" />
+      <workItem from="1716124858561" duration="20031000" />
     </task>
     <servers />
   </component>

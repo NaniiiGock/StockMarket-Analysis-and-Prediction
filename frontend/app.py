@@ -1,11 +1,13 @@
 import json
 import os
 import time
+from datetime import datetime, timedelta, timezone
 
 import requests
 from confluent_kafka import Consumer
 from flask import Flask, render_template, request, jsonify
 from flask import redirect, url_for, session
+from dateutil import parser
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -31,17 +33,22 @@ def fetch_tokens(retries=10, delay=5):
 
 currency_list = fetch_tokens()
 
-data_store = {x: [] for x in currency_list}
 
 # ================================================================================================
 #                           KAFKA
 # ================================================================================================
 
+data_store = {x: [] for x in currency_list}
+
 plot_volume = 10
 
 
 def consume(token_to_get: str):
-    conf = {'bootstrap.servers': "stock_api_kafka:9092", 'group.id': "my-group", 'auto.offset.reset': 'earliest'}
+    conf = {
+        'bootstrap.servers': "stock_api_kafka:9092",
+        'group.id': "my-group",
+        'auto.offset.reset': 'latest'
+    }
 
     consumer = Consumer(conf)
     consumer.subscribe(['prices'])
@@ -52,21 +59,25 @@ def consume(token_to_get: str):
             if message is None:
                 continue
             if message.error():
-                print(f"Some error in Kafka happened: {message.error}")
+                print(f"Kafka Error: {message.error}")
                 continue
-            else:
-                value = json.loads(message.value().decode('utf-8'))
-                token = value['token']
 
-                if token not in data_store:
-                    data_store[token] = []
-                data_store[token].append((value['value'], value['datetime']))
+            current_time = datetime.now(timezone.utc)
+            time_difference = timedelta(seconds=5)
 
-                if len(data_store[token]) > plot_volume:
-                    data_store[token] = data_store[token][-plot_volume:]
+            value = json.loads(message.value().decode('utf-8'))
+            token = value['token']
+            message_datetime = parser.isoparse(value['datetime'])
 
-                if token_to_get == token:
-                    break
+            if not (current_time - time_difference <= message_datetime <= current_time + time_difference):
+                continue
+
+            if token not in data_store:
+                data_store[token] = []
+            data_store[token].append((value['value'], value['datetime']))
+
+            if token_to_get == token:
+                break
 
     finally:
         consumer.close()
@@ -164,6 +175,10 @@ def streaming():
 
 @app.route('/submit_realtime', methods=['GET'])
 def submit_realtime():
+    for token in currency_list:
+        if len(data_store[token]) > plot_volume:
+            data_store[token] = data_store[token][-plot_volume:]
+
     token = request.args.get('token')
     consume(token)
 
@@ -174,11 +189,11 @@ def submit_realtime():
 
 
 # =================================================================================================
-#                           TRANACTIONS
+#                           TRANSACTIONS
 # =================================================================================================
 
 
-currency_data = {# get current data from Nazar
+currency_data = {  # get current data from Nazar
     'HNT': 1, 'SOL': 2, 'soLINK': 3, 'TBTC': 4, 'Bonk': 5, 'W': 6, }
 
 
@@ -231,7 +246,8 @@ def history_of_trades():
         transactions = []
         for txn in transaction_data['transactions']:
             transactions.append({'type': 'buy' if txn['action'].lower() == 'bought' else 'sell', 'token': txn['item'],
-                'quantity': txn['quantity'], 'price': txn['price'], 'total': txn['price'] * txn['quantity']})
+                                 'quantity': txn['quantity'], 'price': txn['price'],
+                                 'total': txn['price'] * txn['quantity']})
 
         return render_template('history_of_trades.html', transactions=transactions)
     except requests.RequestException as e:
@@ -248,4 +264,4 @@ def history_of_trades():
 ####################################################################################################
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080, debug=True)
