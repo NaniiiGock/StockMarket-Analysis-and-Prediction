@@ -64,6 +64,11 @@
         document.getElementById('selectedCurrencies').textContent = `Selected Currencies: ${currency}`;
         document.getElementById('selectedDates').textContent = `Date Range: ${startDateTime} to ${endDateTime}`;
 
+        if (window.fetchInterval != null) {
+            clearInterval(window.fetchInterval);
+            window.fetchInterval = null;
+        }
+
 
         fetch('/submit', {
             method: 'POST',
@@ -71,7 +76,10 @@
         }).then(response => response.json())
             .then(data => {
                 const ctx = document.getElementById('myChart').getContext('2d');
-                new Chart(ctx, {
+                if (window.chart instanceof Chart) {
+                    window.chart.destroy();
+                }
+                window.chart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: data.labels,
@@ -105,8 +113,9 @@
                         }
                     }
                 });
+
             });
-    };
+        };
 </script>
 
 </body>
