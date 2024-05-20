@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 from confluent_kafka import Consumer
+from kafka import KafkaProducer
 from flask import Flask, render_template, request, jsonify
 from flask import redirect, url_for, session
 from dateutil import parser
