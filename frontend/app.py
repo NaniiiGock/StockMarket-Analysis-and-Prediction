@@ -45,6 +45,7 @@ plot_volume = 10
 
 
 def consume(token_to_get: str):
+    print("In func consume.")
     conf = {
         'bootstrap.servers': "stock_api_kafka:9092",
         'group.id': "my-group",
@@ -52,30 +53,34 @@ def consume(token_to_get: str):
     }
 
     consumer = Consumer(conf)
-    consumer.subscribe(['prices'])
+    print("Created consumer")
+    consumer.subscribe(['processed_prices'])
+    print("Subscribed")
 
     try:
         while True:
+            print("Start consuming messages")
             message = consumer.poll(timeout=10.0)
             if message is None:
+                print("Message is none")
                 continue
             if message.error():
                 print(f"Kafka Error: {message.error}")
                 continue
-
+            print(f"Got message {json.loads(message.value().decode('utf-8'))}")
             current_time = datetime.now(timezone.utc)
             time_difference = timedelta(seconds=5)
 
             value = json.loads(message.value().decode('utf-8'))
             token = value['token']
-            message_datetime = parser.isoparse(value['datetime'])
+            message_datetime = parser.isoparse(value['window']['end'])
 
             if not (current_time - time_difference <= message_datetime <= current_time + time_difference):
                 continue
 
             if token not in data_store:
                 data_store[token] = []
-            data_store[token].append((value['value'], value['datetime']))
+            data_store[token].append((value['average_value'], message_datetime))
 
             if token_to_get == token:
                 break

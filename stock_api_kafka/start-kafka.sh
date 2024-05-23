@@ -16,6 +16,7 @@ sleep 10
 
 # Create a topic
 kafka-topics --create --topic prices --partitions 6 --replication-factor 1 --if-not-exists --bootstrap-server localhost:9092
+kafka-topics --create --topic processed-prices --partitions 6 --replication-factor 1 --if-not-exists --bootstrap-server localhost:9092
 
 # Wait for Kafka to continue running
 wait

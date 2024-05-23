@@ -7,10 +7,12 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bb04a122-eb90-428c-a41e-927a990e27a3" name="Changes" comment="">
+    <list default="true" id="bb04a122-eb90-428c-a41e-927a990e27a3" name="Changes" comment="fixed frontend connection with matching engine kafka">
+      <change afterPath="$PROJECT_DIR$/stream/stream_processing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/stock_api_kafka/start-kafka.sh" beforeDir="false" afterPath="$PROJECT_DIR$/stock_api_kafka/start-kafka.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,6 +23,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Dockerfile" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -35,6 +38,18 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Liubavaa&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:NaniiiGock/StockMarket-Analysis-and-Prediction.git&quot;,
+    &quot;accountId&quot;: &quot;7d7a95ee-8681-4315-9f3e-5d892e35512e&quot;
+  }
+}</component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="8bnohfat" />
   </component>
@@ -89,6 +104,14 @@
   <component name="RustfmtProjectSettings">
     <option name="useRustfmt" value="true" />
   </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-PY-241.15989.155" />
+        <option value="bundled-python-sdk-babbdf50b680-7c6932dee5e4-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.15989.155" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -121,7 +144,18 @@
       <workItem from="1715856115391" duration="8000" />
       <workItem from="1716052757414" duration="22266000" />
       <workItem from="1716124858561" duration="20031000" />
+      <workItem from="1716392455709" duration="8555000" />
+      <workItem from="1716480149600" duration="6569000" />
     </task>
+    <task id="LOCAL-00001" summary="fixed frontend connection with matching engine kafka">
+      <option name="closed" value="true" />
+      <created>1716216839445</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1716216839446</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -131,5 +165,7 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/stock_api" />
     </ignored-roots>
+    <MESSAGE value="fixed frontend connection with matching engine kafka" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed frontend connection with matching engine kafka" />
   </component>
 </project>
