@@ -73,6 +73,14 @@ Streaming is done using Apache Spark, which allows for quick
 averaging of prices over small periods of time (the default is a 5-sec 
 window).
 
+We use Kafka to enable asynchronous communication between microservices, and we utilize
+Spark Streaming because it allows us to process and analyze data in real-time, 
+efficiently averaging values and providing timely, accurate data representation for plot visualization.
+
+We choose Cassandra for historical DB, because it excels in handling high write throughput,
+scalability, and availability across distributed systems, which are essential for storing
+and retrieving large volumes of time-series data efficiently.
+
 Written in Rust language for the best performance.
 
 This service has the following modules:
@@ -98,16 +106,21 @@ via **User Info Service**.
 
 **User Info Service** provides a business layer for user authentication and 
 retrieval of transaction history.
-This data is stored is Postgres SQL database.
+This data is stored is Postgres SQL database.PostgreSQL is chosen for user authentication because
+of its robust security features, role-based access control, and encryption.
+Additionally, PostgreSQL’s strong ACID compliance and reliable transaction
+management ensure the integrity and consistency of sensitive user data.
 
-#### Matching Engine Service.
+#### Matching Engine Service
 
 Three instances of this service are started at startup for reliability.
-They receive user orders from **Web UI Service** via Kafka message queue.
+They receive user orders from **Web UI Service** via Kafka message queue,
+so services can handle high-throughput of orders asynchronically.
 Each service instance is connected to its Redis node, where received
-orders are saved to.
-Then it searches for suit orders, matches them, and sends the created
-transaction back to **Web UI Service**.
+orders are saved to. Redis is used for its fast in-memory data storage
+and to provide shared memory among instances, ensuring quick access and
+updates across the service. Then it searches for suit orders, matches them, 
+and sends the created transaction back to **Web UI Service**.
 
 ## Demonstration & Examples
 
