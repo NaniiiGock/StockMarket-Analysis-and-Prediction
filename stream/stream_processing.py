@@ -53,7 +53,7 @@ query = output_df.writeStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", kafka_server) \
     .option("topic", output_topic) \
-    .option("checkpointLocation", "/opt/app/kafka_checkpoint") \
+    .option("checkpointLocation", "/opt/app/kafka-checkpoint") \
     .start()
 
 

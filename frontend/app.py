@@ -69,14 +69,16 @@ def consume(token_to_get: str):
                 continue
             print(f"Got message {json.loads(message.value().decode('utf-8'))}")
             current_time = datetime.now(timezone.utc)
-            time_difference = timedelta(seconds=5)
+            time_difference = timedelta(seconds=10)
 
             value = json.loads(message.value().decode('utf-8'))
             token = value['token']
             message_datetime = parser.isoparse(value['window']['end'])
 
-            if not (current_time - time_difference <= message_datetime <= current_time + time_difference):
-                continue
+            print("Current time:", current_time.strftime("%M:%S"), "Message time:", message_datetime.strftime("%M:%S"))
+            # if not (current_time - time_difference <= message_datetime <= current_time + time_difference):
+            #     print("Here", current_time - time_difference, message_datetime, current_time + time_difference)
+            #     continue
 
             if token not in data_store:
                 data_store[token] = []
