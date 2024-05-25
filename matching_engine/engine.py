@@ -88,25 +88,25 @@ class TradeMatchingSystem:
             if buy_quantity > sell_quantity:
                 # Update buyer quantities
                 new_buy_quantity = buy_quantity - sell_quantity
-                updated_buy_order = json.dumps({
+                updated_buy_order = {
                     "price": buy_price,
                     "quantity": new_buy_quantity,
                     "id": buy_id,
                     "token": token,
                     "type": "buy"
-                })
+                }
                 self.place_order(updated_buy_order)
 
             elif buy_quantity < sell_quantity:
                 # Update seller quantities
                 new_sell_quantity = sell_quantity - buy_quantity
-                updated_sell_order = json.dumps({
+                updated_sell_order = {
                     "price": sell_price,
                     "quantity": new_sell_quantity,
                     "id": sell_id,
                     "token": token,
                     "type": "sell"
-                })
+                }
                 self.place_order(updated_sell_order)
 
             logging.info(f"Matched order for {token}: Buy Order ID {buy_id} at {buy_price} USD with quantity {buy_quantity}"

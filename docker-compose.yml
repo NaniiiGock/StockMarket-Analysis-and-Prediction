@@ -24,30 +24,6 @@ services:
       SPARK_WORKER_MEMORY: 4g
       SPARK_MASTER_URL: spark://spark-master:7077
 
-  #  stock_api_zookeeper:
-#    container_name: stock_api_zookeeper
-#    image: confluentinc/cp-zookeeper:latest
-#    environment:
-#      ZOOKEEPER_CLIENT_PORT: 2181
-#      ZOOKEEPER_TICK_TIME: 2000
-#    networks:
-#      - stock_api_to_frontend
-#
-#  stock_api_kafka:
-#    container_name: stock_api_kafka
-#    image: confluentinc/cp-kafka:latest
-#    depends_on:
-#      - stock_api_zookeeper
-#    environment:
-#      KAFKA_ZOOKEEPER_CONNECT: stock_api_zookeeper:2181
-#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://stock_api_kafka:9092
-#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-#    volumes:
-#      - ./stock_api_kafka/start-kafka.sh:/usr/local/bin/start-kafka.sh
-#    command: ["bash", "/usr/local/bin/start-kafka.sh"]
-#    networks:
-#      - stock_api_to_frontend
-
   stock_api_zookeeper:
     container_name: stock_api_zookeeper
     image: 'bitnami/zookeeper:latest'
@@ -58,7 +34,6 @@ services:
     networks:
       - stock_api_to_frontend
       - spark_network
-
 
   stock_api_kafka:
     container_name: stock_api_kafka
@@ -148,165 +123,174 @@ services:
       stock_api_to_frontend:
       user_info_to_frontend:
       matching_engine_to_frontend:
-#
-#  matching_engine_zookeeper:
-#    image: confluentinc/cp-zookeeper:latest
-#    container_name: matching_engine_zookeeper
-#    environment:
-#      ZOOKEEPER_CLIENT_PORT: 2181
-#      ZOOKEEPER_TICK_TIME: 2000
-#    networks:
-#      matching_engine_to_frontend:
-#
-#  matching_engine_kafka:
-#    image: confluentinc/cp-kafka:latest
-#    container_name: matching_engine_kafka
-#    depends_on:
-#      - matching_engine_zookeeper
-#    environment:
-#      KAFKA_ZOOKEEPER_CONNECT: matching_engine_zookeeper:2181
-#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://matching_engine_kafka:9092
-#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-#    volumes:
-#      - ./matching_engine_kafka/start-kafka.sh:/usr/local/bin/start-kafka.sh
-#    command: ["bash", "/usr/local/bin/start-kafka.sh"]
-#    healthcheck:
-#      test: [ "CMD", "bash", "-c", "kafka-topics --list --bootstrap-server 0.0.0.0:9092 | grep -qw orders" ]
-#      interval: 15s
-#      timeout: 10s
-#      retries: 10
-#    networks:
-#      matching_engine_to_frontend:
-#
-#  matching_engine_redis_0:
-#    container_name: matching_engine_redis_0
-#    image: redis:6.0-alpine
-#    command: redis-server /usr/local/etc/redis/redis.conf
-#    ports:
-#      - "9079:6379"
-#    volumes:
-#      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
-#    networks:
-#      matching_engine_to_frontend:
-#
-#  matching_engine_redis_1:
-#    container_name: matching_engine_redis_1
-#    image: redis:6.0-alpine
-#    command: redis-server /usr/local/etc/redis/redis.conf
-#    ports:
-#      - "9080:6379"
-#    volumes:
-#      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
-#    networks:
-#      matching_engine_to_frontend:
-#
-#  matching_engine_redis_2:
-#    container_name: matching_engine_redis_2
-#    image: redis:6.0-alpine
-#    command: redis-server /usr/local/etc/redis/redis.conf
-#    ports:
-#      - "9081:6379"
-#    volumes:
-#      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
-#    networks:
-#      matching_engine_to_frontend:
-#
-#  matching_engine_redis_3:
-#    container_name: matching_engine_redis_3
-#    image: redis:6.0-alpine
-#    command: redis-server /usr/local/etc/redis/redis.conf
-#    ports:
-#      - "9082:6379"
-#    volumes:
-#      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
-#    networks:
-#      matching_engine_to_frontend:
-#
-#  matching_engine_redis_4:
-#    container_name: matching_engine_redis_4
-#    image: redis:6.0-alpine
-#    command: redis-server /usr/local/etc/redis/redis.conf
-#    ports:
-#      - "9083:6379"
-#    volumes:
-#      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
-#    networks:
-#      matching_engine_to_frontend:
-#
-#  matching_engine_redis_5:
-#    container_name: matching_engine_redis_5
-#    image: redis:6.0-alpine
-#    command: redis-server /usr/local/etc/redis/redis.conf
-#    ports:
-#      - "9084:6379"
-#    volumes:
-#      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
-#    networks:
-#      matching_engine_to_frontend:
-#
-#  matching_engine_redis_cluster:
-#    container_name: matching_engine_redis_cluster
-#    image: redis:6.0-alpine
-#    command: sh /usr/local/etc/redis/redis-cluster-create.sh
-#    depends_on:
-#      - matching_engine_redis_0
-#      - matching_engine_redis_1
-#      - matching_engine_redis_2
-#    volumes:
-#      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
-#    networks:
-#      matching_engine_to_frontend:
-#
-#  matching_engine_0:
-#    container_name: matching_engine_0
-#    build:
-#      context: ./matching_engine
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ./matching_engine:/app
-#    environment:
-#      - REDIS_PORT=6379
-#      - REDIS_NODE=matching_engine_redis_0
-#    depends_on:
-#      matching_engine_kafka:
-#        condition: service_healthy
-#    networks:
-#      matching_engine_to_frontend:
-#      matching_engine_to_user_info:
-#
-#  matching_engine_1:
-#    container_name: matching_engine_1
-#    build:
-#      context: ./matching_engine
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ./matching_engine:/app
-#    environment:
-#      - REDIS_PORT=6379
-#      - REDIS_NODE=matching_engine_redis_0
-#    depends_on:
-#      matching_engine_kafka:
-#        condition: service_healthy
-#    networks:
-#      matching_engine_to_frontend:
-#      matching_engine_to_user_info:
-#
-#  matching_engine_2:
-#    container_name: matching_engine_2
-#    build:
-#      context: ./matching_engine
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ./matching_engine:/app
-#    environment:
-#      - REDIS_PORT=6379
-#      - REDIS_NODE=matching_engine_redis_0
-#    depends_on:
-#      matching_engine_kafka:
-#        condition: service_healthy
-#    networks:
-#      matching_engine_to_frontend:
-#      matching_engine_to_user_info:
+
+  matching_engine_zookeeper:
+    container_name: matching_engine_zookeeper
+    image: 'bitnami/zookeeper:latest'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - matching_engine_to_frontend
+
+  matching_engine_kafka:
+    container_name: matching_engine_kafka
+    image: 'bitnami/kafka:latest'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=matching_engine_zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - matching_engine_zookeeper
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "kafka-broker-api-versions.sh --bootstrap-server localhost:9092" ]
+      interval: 7s
+      timeout: 5s
+      retries: 10
+    networks:
+      - matching_engine_to_frontend
+
+  matching_engine_kafka_setup:
+    container_name: matching_engine_kafka_setup
+    image: 'bitnami/kafka:latest'
+    depends_on:
+      matching_engine_kafka:
+        condition: service_healthy
+    command: >
+      sh -c "
+      kafka-topics.sh --create --topic orders --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server stock_api_kafka:9092;
+      "
+    networks:
+      - matching_engine_to_frontend
+
+  matching_engine_redis_0:
+    container_name: matching_engine_redis_0
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9079:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
+
+  matching_engine_redis_1:
+    container_name: matching_engine_redis_1
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9080:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
+
+  matching_engine_redis_2:
+    container_name: matching_engine_redis_2
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9081:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
+
+  matching_engine_redis_3:
+    container_name: matching_engine_redis_3
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9082:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
+
+  matching_engine_redis_4:
+    container_name: matching_engine_redis_4
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9083:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
+
+  matching_engine_redis_5:
+    container_name: matching_engine_redis_5
+    image: redis:6.0-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "9084:6379"
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
+
+  matching_engine_redis_cluster:
+    container_name: matching_engine_redis_cluster
+    image: redis:6.0-alpine
+    command: sh /usr/local/etc/redis/redis-cluster-create.sh
+    depends_on:
+      - matching_engine_redis_0
+      - matching_engine_redis_1
+      - matching_engine_redis_2
+    volumes:
+      - ${PWD}/matching_engine_redis:/usr/local/etc/redis
+    networks:
+      matching_engine_to_frontend:
+
+  matching_engine_0:
+    container_name: matching_engine_0
+    build:
+      context: ./matching_engine
+      dockerfile: Dockerfile
+    volumes:
+      - ./matching_engine:/app
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_NODE=matching_engine_redis_0
+    depends_on:
+      matching_engine_kafka:
+        condition: service_healthy
+    networks:
+      matching_engine_to_frontend:
+      matching_engine_to_user_info:
+
+  matching_engine_1:
+    container_name: matching_engine_1
+    build:
+      context: ./matching_engine
+      dockerfile: Dockerfile
+    volumes:
+      - ./matching_engine:/app
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_NODE=matching_engine_redis_0
+    depends_on:
+      matching_engine_kafka:
+        condition: service_healthy
+    networks:
+      matching_engine_to_frontend:
+      matching_engine_to_user_info:
+
+  matching_engine_2:
+    container_name: matching_engine_2
+    build:
+      context: ./matching_engine
+      dockerfile: Dockerfile
+    volumes:
+      - ./matching_engine:/app
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_NODE=matching_engine_redis_0
+    depends_on:
+      matching_engine_kafka:
+        condition: service_healthy
+    networks:
+      matching_engine_to_frontend:
+      matching_engine_to_user_info:
 
   user_info_db:
     container_name: user_info_db
