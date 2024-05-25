@@ -55,7 +55,7 @@ However, due to lack in time, we've only managed to make use of stream
 processing, which handles real-time plots of prices.
 The future improvement would involve using batch processing for historical
 data view (which could allow, for instance, specifying the number of
-data points we'd like to view).
+data points we'd like to view)._
 
 ### Diagram
 
