@@ -29,6 +29,7 @@ input_df = spark.readStream \
     .option("kafka.bootstrap.servers", kafka_server) \
     .option("subscribe", input_topic) \
     .option("startingOffsets", "latest") \
+    .option("failOnDataLoss", "false") \
     .load()
 
 # Parse JSON data

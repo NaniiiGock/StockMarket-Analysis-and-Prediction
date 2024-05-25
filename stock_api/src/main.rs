@@ -90,7 +90,7 @@ async fn main() -> Result<()> {
             }
         }
     });
-    
+
     tokio::spawn(async move {
         match populate_prices(state.session.clone()).await {
             Ok(_) => {}
