@@ -17,9 +17,9 @@ macOS.
 Here's a comparison of interfaces (the first one is a title page of the
 Stocks application, the second one is our equivalent):
 
-![img_1.png](img_1.png)
+![img_1.png](readme_data/img_1.png)
 
-![img_3.png](img_3.png)
+![img_3.png](readme_data/img_3.png)
 
 Here's a full list of features that our service allows for:
 - registration and login system
@@ -59,7 +59,7 @@ data points we'd like to view).
 
 ### Diagram
 
-![img.png](img.png)
+![img.png](readme_data/img.png)
 
 ### Main services
 
@@ -112,21 +112,21 @@ transaction back to **Web UI Service**.
 ## Demonstration & Examples
 
 ### Registraton/Login
-![img_11.png](img_11.png)
+![img_11.png](readme_data/img_11.png)
 
 ### Real time plots
-![img_4.png](img_4.png)
-![img_5.png](img_5.png)
+![img_4.png](readme_data/img_4.png)
+![img_5.png](readme_data/img_5.png)
 
 ### Historical data
-![img_6.png](img_6.png)
+![img_6.png](readme_data/img_6.png)
 
 ### Orders
-![img_8.png](img_8.png)
+![img_8.png](readme_data/img_8.png)
 
 ### History of trades
-![img_9.png](img_9.png)
-![img_10.png](img_10.png)
+![img_9.png](readme_data/img_9.png)
+![img_10.png](readme_data/img_10.png)
 
 ## Summary
 
